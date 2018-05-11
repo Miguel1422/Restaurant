@@ -1,16 +1,7 @@
 package com.superescuadronalfa.restaurant.dbEntities;
 
-import com.superescuadronalfa.restaurant.dbEntities.helpers.DBEntity;
 
-public class User extends DBEntity {
-    /*
-    public int id_trabajador { get; set; }
-        public string username { get; set; }
-        public byte[] hash { get; set; }
-        public byte[] salt { get; set; }
-
-        public virtual Trabajador Trabajador { get; set; }
-     */
+public class User {
 
     private int idTrabajador;
     private String username;
