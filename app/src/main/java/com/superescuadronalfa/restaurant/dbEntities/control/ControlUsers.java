@@ -24,7 +24,7 @@ public class ControlUsers implements IControlEntidad<User> {
 
     @Override
     public boolean agregar(User entidad) {
-        return DBRestaurant.ejecutaComando(ADD, entidad.getIdTrabajador(), entidad.getUsername(), entidad.getHash(), entidad.getSalt());
+        return false;
     }
 
     @Override
@@ -70,8 +70,10 @@ public class ControlUsers implements IControlEntidad<User> {
             return u;
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            DBRestaurant.close();
         }
-        DBRestaurant.close();
+
         return null;
     }
 

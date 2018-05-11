@@ -24,7 +24,11 @@ import android.widget.Toast;
 
 import com.superescuadronalfa.restaurant.LoginActivity;
 import com.superescuadronalfa.restaurant.R;
+import com.superescuadronalfa.restaurant.dbEntities.Mesa;
 import com.superescuadronalfa.restaurant.dbEntities.Trabajador;
+import com.superescuadronalfa.restaurant.dbEntities.control.ControlMesas;
+
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -145,6 +149,7 @@ public class MainActivity extends AppCompatActivity
 
         private Trabajador trabajador;
         private RoundedBitmapDrawable dr;
+        private List<Mesa> mesas;
 
         UserLoggedTask(Trabajador trabajador) {
             this.trabajador = trabajador;
@@ -158,6 +163,9 @@ public class MainActivity extends AppCompatActivity
             Bitmap src = trabajador.getImage();
             dr = RoundedBitmapDrawableFactory.create(res, src);
             dr.setCornerRadius(Math.max(src.getWidth(), src.getHeight()) / 2.0f);
+
+            mesas = ControlMesas.getInstance().getLista();
+
 
             return true;
         }
@@ -177,6 +185,10 @@ public class MainActivity extends AppCompatActivity
 
                 Toast.makeText(MainActivity.this.getApplicationContext(), "Bien", Toast.LENGTH_SHORT).show();
                 imageView.setImageDrawable(dr);
+
+                for (Mesa m : mesas) {
+                    Toast.makeText(MainActivity.this.getApplicationContext(), "Mesa " + m.getNombre(), Toast.LENGTH_SHORT).show();
+                }
             } else
                 Toast.makeText(MainActivity.this.getApplicationContext(), "Error", Toast.LENGTH_SHORT).show();
         }
