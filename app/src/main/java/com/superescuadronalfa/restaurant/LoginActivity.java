@@ -3,25 +3,24 @@ package com.superescuadronalfa.restaurant;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
-import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.os.StrictMode;
-import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
 import android.app.LoaderManager.LoaderCallbacks;
-
+import android.content.Context;
 import android.content.CursorLoader;
+import android.content.Intent;
 import android.content.Loader;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
-
 import android.os.Build;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.provider.ContactsContract;
+import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
+import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -34,12 +33,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.superescuadronalfa.restaurant.activities.MainActivity;
-import com.superescuadronalfa.restaurant.database.Conexion;
+import com.superescuadronalfa.restaurant.dbEntities.Trabajador;
+import com.superescuadronalfa.restaurant.dbEntities.helpers.LoginManager;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -72,10 +68,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         // Set up the login form.
-        mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
+        mEmailView = findViewById(R.id.email);
         populateAutoComplete();
 
-        mPasswordView = (EditText) findViewById(R.id.password);
+        mPasswordView = findViewById(R.id.password);
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
@@ -87,7 +83,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             }
         });
 
-        Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
+        Button mEmailSignInButton = findViewById(R.id.email_sign_in_button);
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -192,7 +188,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            mAuthTask = new UserLoginTask(email, password, this);
+            mAuthTask = new UserLoginTask(email, password);
             mAuthTask.execute((Void) null);
         }
     }
@@ -301,53 +297,46 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      * Represents an asynchronous login/registration task used to authenticate
      * the user.
      */
-    public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
+    public class UserLoginTask extends AsyncTask<Void, Void, Trabajador> {
 
-        private final String mEmail;
-        private final String mPassword;
+        private final String username;
+        private final String pass;
         private final Context ctx;
+        private Trabajador trabajador;
 
-        UserLoginTask(String email, String password, Context ctx) {
-            mEmail = email;
-            mPassword = password;
-            this.ctx = ctx;
+        UserLoginTask(String email, String password) {
+            username = email;
+            pass = password;
+            this.ctx = LoginActivity.this;
         }
 
 
         @Override
-        protected Boolean doInBackground(Void... params) {
+        protected Trabajador doInBackground(Void... params) {
             // TODO: attempt authentication against a network service.
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
             StrictMode.setThreadPolicy(policy);
 
-            Connection DbConn = Conexion.getConexion();
-
-            Statement stmt = null;
-            try {
-                stmt = DbConn.createStatement();
-                ResultSet reset = stmt.executeQuery(" select * from [User]");
-
-                while (reset.next()) {
-                    return true;
-                }
-
-                DbConn.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
+            // TODO cambiar esto a estados (Contrasena incorrecta, usuario no valido, etc)
+            trabajador = LoginManager.Login(username, pass);
+            if (trabajador != null) {
+                Log.w("Login", "Logged");
+                return trabajador;
             }
 
             // User not found
-            return false;
+            return null;
         }
 
         @Override
-        protected void onPostExecute(final Boolean success) {
+        protected void onPostExecute(final Trabajador success) {
             mAuthTask = null;
             showProgress(false);
 
-            if (success) {
-                Toast.makeText(ctx, "Exito", Toast.LENGTH_SHORT).show();
+            if (success != null) {
+                Toast.makeText(LoginActivity.this, "Bienvenido " + success.getNombre(), Toast.LENGTH_SHORT).show();
                 Intent launchMainActivity = new Intent(getApplicationContext(), MainActivity.class);
+                launchMainActivity.putExtra(MainActivity.EXTRA_TRABAJADOR, trabajador);
                 startActivity(launchMainActivity);
                 finish();
             } else {
