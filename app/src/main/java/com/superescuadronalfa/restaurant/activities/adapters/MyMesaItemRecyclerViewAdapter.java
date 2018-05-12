@@ -1,4 +1,4 @@
-package com.superescuadronalfa.restaurant.activities;
+package com.superescuadronalfa.restaurant.activities.adapters;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.superescuadronalfa.restaurant.R;
+import com.superescuadronalfa.restaurant.activities.OnListFragmentInteractionListener;
 import com.superescuadronalfa.restaurant.dbEntities.Mesa;
 
 import java.util.List;
@@ -54,17 +55,6 @@ public class MyMesaItemRecyclerViewAdapter extends RecyclerView.Adapter<MyMesaIt
                     // Notify the active callbacks interface (the activity, if the
                     // fragment is attached to one) that an item has been selected.
                     mListener.onListFragmentInteraction(holder.mItem);
-                }
-            }
-        });
-
-        holder.imageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (null != mListener) {
-                    // Notify the active callbacks interface (the activity, if the
-                    // fragment is attached to one) that an item has been selected.
-                    mListener.onListImageClicked(holder.mItem);
                 }
             }
         });

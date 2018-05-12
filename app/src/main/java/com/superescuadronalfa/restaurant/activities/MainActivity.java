@@ -5,9 +5,7 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v4.view.GravityCompat;
@@ -27,6 +25,7 @@ import android.widget.Toast;
 
 import com.superescuadronalfa.restaurant.LoginActivity;
 import com.superescuadronalfa.restaurant.R;
+import com.superescuadronalfa.restaurant.activities.adapters.MyMesaItemRecyclerViewAdapter;
 import com.superescuadronalfa.restaurant.dbEntities.Mesa;
 import com.superescuadronalfa.restaurant.dbEntities.Trabajador;
 import com.superescuadronalfa.restaurant.dbEntities.control.ControlMesas;
@@ -49,15 +48,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -69,7 +59,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         navigationView.setNavigationItemSelectedListener(this);
 
         // Codigo agregado
+
         Bundle extras = getIntent().getExtras();
+        if (extras == null || extras.get(EXTRA_TRABAJADOR) == null) {
+            Toast.makeText(getApplicationContext(), "No se tiene mesero, ERROR", Toast.LENGTH_LONG).show();
+            return;
+        }
         Trabajador t = (Trabajador) extras.get(EXTRA_TRABAJADOR);
 
         progressBar = findViewById(R.id.progressBar);
@@ -89,12 +84,24 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         initializeData();
     }
 
+    protected void onSaveInstanceState(Bundle bundle) {
+        super.onSaveInstanceState(bundle);
+        Bundle extras = getIntent().getExtras();
+        Trabajador t = (Trabajador) extras.get(EXTRA_TRABAJADOR);
+
+        bundle.putParcelable(EXTRA_TRABAJADOR, t);
+
+    }
+
     private void initializeAdapter(List<Mesa> mesas) {
 
         MyMesaItemRecyclerViewAdapter adap = new MyMesaItemRecyclerViewAdapter(mesas, new OnListFragmentInteractionListener() {
             @Override
             public void onListFragmentInteraction(Mesa item) {
-
+                Intent mesaIntent = new Intent(MainActivity.this, PedidosActivity.class);
+                mesaIntent.putExtra(PedidosActivity.EXTRA_MESA, item);
+                startActivity(mesaIntent);
+                // Toast.makeText(MainActivity.this, item.getNombre(), Toast.LENGTH_SHORT).show();
             }
 
             @Override
