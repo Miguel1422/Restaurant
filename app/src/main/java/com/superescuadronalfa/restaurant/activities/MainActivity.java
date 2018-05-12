@@ -14,11 +14,14 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,13 +33,14 @@ import com.superescuadronalfa.restaurant.dbEntities.control.ControlMesas;
 
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     public static final String EXTRA_TRABAJADOR = "com.superescuadronalfa.restaurant.ID_TRABAJADOR";
 
 
     private NavigationView navigationView;
+    private RecyclerView rv;
+    private ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,8 +71,49 @@ public class MainActivity extends AppCompatActivity
         // Codigo agregado
         Bundle extras = getIntent().getExtras();
         Trabajador t = (Trabajador) extras.get(EXTRA_TRABAJADOR);
+
+        progressBar = findViewById(R.id.progressBar);
+
+        progressBar.setVisibility(View.VISIBLE);
         UserLoggedTask task = new UserLoggedTask(t);
         task.execute();
+
+        rv = findViewById(R.id.rv);
+
+        LinearLayoutManager llm = new LinearLayoutManager(this);
+
+
+        rv.setLayoutManager(llm);
+        rv.setHasFixedSize(true);
+
+        initializeData();
+    }
+
+    private void initializeAdapter(List<Mesa> mesas) {
+
+        MyMesaItemRecyclerViewAdapter adap = new MyMesaItemRecyclerViewAdapter(mesas, new OnListFragmentInteractionListener() {
+            @Override
+            public void onListFragmentInteraction(Mesa item) {
+
+            }
+
+            @Override
+            public void onListImageClicked(Mesa mItem) {
+
+            }
+
+            @Override
+            public void onListButtonClicked(Mesa mItem) {
+
+            }
+
+
+        });
+        // rv.setAdapter(adapter);
+        rv.setAdapter(adap);
+    }
+
+    private void initializeData() {
     }
 
     @Override
@@ -183,14 +228,16 @@ public class MainActivity extends AppCompatActivity
                 ImageView imageView = header.findViewById(R.id.nav_header_imageView);
                 // imageView.setImageBitmap(trabajador.getImage());
 
-                Toast.makeText(MainActivity.this.getApplicationContext(), "Bien", Toast.LENGTH_SHORT).show();
+                // Toast.makeText(MainActivity.this.getApplicationContext(), "Bien", Toast.LENGTH_SHORT).show();
                 imageView.setImageDrawable(dr);
 
                 for (Mesa m : mesas) {
-                    Toast.makeText(MainActivity.this.getApplicationContext(), "Mesa " + m.getNombre(), Toast.LENGTH_SHORT).show();
+                    // Toast.makeText(MainActivity.this.getApplicationContext(), "Mesa " + m.getNombre() + " " + m.getEstadoMesa().getNombre(), Toast.LENGTH_SHORT).show();
                 }
+                initializeAdapter(mesas);
             } else
                 Toast.makeText(MainActivity.this.getApplicationContext(), "Error", Toast.LENGTH_SHORT).show();
+            progressBar.setVisibility(View.GONE);
         }
 
         @Override
