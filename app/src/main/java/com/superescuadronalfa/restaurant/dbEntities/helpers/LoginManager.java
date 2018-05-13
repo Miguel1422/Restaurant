@@ -10,8 +10,6 @@ import java.security.NoSuchAlgorithmException;
 public class LoginManager {
 
     public static Trabajador Login(String username, String pass) {
-        Trabajador trabajador = null;
-
         User user = ControlUsers.getInstance().busca(username);
         if (user == null) return null;
         String salt = ByteToString(user.getSalt());
@@ -20,19 +18,19 @@ public class LoginManager {
         if (ByteToString(generatedHash).equals(ByteToString(user.getHash()))) {
             return user.getTrabajador();
         }
-        return trabajador;
+        return null;
     }
 
     public static String ByteToString(byte[] b) {
         StringBuilder result = new StringBuilder();
-        for (int i = 0; i < b.length; i++) {
-            result.append(Integer.toString((b[i] & 0xff) + 0x100, 16).substring(1));
+        for (byte aB : b) {
+            result.append(Integer.toString((aB & 0xff) + 0x100, 16).substring(1));
         }
         return result.toString().toUpperCase();
     }
 
     private static byte[] HashSHA1(byte[] value) {
-        MessageDigest crypt = null;
+        MessageDigest crypt;
         try {
             crypt = MessageDigest.getInstance("SHA-1");
             crypt.reset();
