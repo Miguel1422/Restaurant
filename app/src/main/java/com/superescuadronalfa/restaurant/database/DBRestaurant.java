@@ -39,6 +39,8 @@ public class DBRestaurant {
             return res;
         } catch (SQLException | NullPointerException e) {
             e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return null;
     }

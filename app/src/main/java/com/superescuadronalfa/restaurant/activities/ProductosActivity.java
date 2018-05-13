@@ -7,6 +7,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -53,7 +54,16 @@ public class ProductosActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar);
 
         progressBar.setVisibility(View.VISIBLE);
+        Log.w("Create", "Creating the Productos acivirty");
+        System.out.println("Creating the Productos acivirty");
         new LoadContent().execute();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        //Clear the Activity's bundle of the subsidiary fragments' bundles.
+        outState.clear();
     }
 
     @Override
@@ -84,6 +94,11 @@ public class ProductosActivity extends AppCompatActivity {
         @Override
         protected Boolean doInBackground(Void... voids) {
             List<Producto> productos = ControlProductos.getInstance().getLista();
+            for (Producto p : productos) {
+                if (p.getImage() == null) {
+                    throw new RuntimeException("No se pudo recuperar la imagen");
+                }
+            }
 
             productosPorCategoria = OrganizarProductos.organizaPorCategorias(productos);
 
@@ -95,7 +110,7 @@ public class ProductosActivity extends AppCompatActivity {
             if (success) {
                 // Create the adapter that will return a fragment for each of the three
                 // primary sections of the activity.
-                mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager(), productosPorCategoria);
+                mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager(), productosPorCategoria, 2);
 
                 // Set up the ViewPager with the sections adapter.
                 mViewPager = findViewById(R.id.container);

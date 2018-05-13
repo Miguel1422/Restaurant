@@ -26,6 +26,7 @@ import android.widget.Toast;
 import com.superescuadronalfa.restaurant.LoginActivity;
 import com.superescuadronalfa.restaurant.R;
 import com.superescuadronalfa.restaurant.activities.adapters.MyMesaItemRecyclerViewAdapter;
+import com.superescuadronalfa.restaurant.activities.adapters.OnListFragmentInteractionListener;
 import com.superescuadronalfa.restaurant.dbEntities.Mesa;
 import com.superescuadronalfa.restaurant.dbEntities.Trabajador;
 import com.superescuadronalfa.restaurant.dbEntities.control.ControlMesas;

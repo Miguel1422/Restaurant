@@ -25,7 +25,7 @@ public class Conexion {
         } catch (InstantiationException | IllegalAccessException | ClassNotFoundException | SQLException e) {
             e.printStackTrace();
         } catch (Exception e) {
-            System.out.println();
+            e.printStackTrace();
         }
 
         return null;

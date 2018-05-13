@@ -23,40 +23,24 @@
 
             <ImageView
                 android:id="@+id/producto_photo"
-                android:layout_width="100dp"
+                android:layout_width="match_parent"
                 android:layout_height="100dp"
-                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
                 android:layout_alignParentTop="true"
-                android:layout_marginRight="16dp"
+                android:layout_gravity="center"
                 app:srcCompat="@mipmap/ic_launcher" />
 
             <TextView
 
                 android:id="@+id/producto_name"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
-                android:layout_toRightOf="@+id/producto_photo"
+                android:layout_alignStart="@+id/producto_photo"
+                android:layout_below="@+id/producto_photo"
                 android:text="Hola"
-                android:textSize="30sp"
+                android:textAlignment="center"
+                android:textSize="14sp"
                 tools:text="Name" />
-
-            <TextView
-                android:id="@+id/person_age"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/producto_name"
-                android:layout_toRightOf="@+id/producto_photo"
-                android:text="Age" />
-
-            <Button
-                android:id="@+id/button"
-                android:layout_width="154dp"
-                android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
-                android:layout_alignParentEnd="true"
-                android:text="Button"
-                android:visibility="invisible" />
 
         </RelativeLayout>
 

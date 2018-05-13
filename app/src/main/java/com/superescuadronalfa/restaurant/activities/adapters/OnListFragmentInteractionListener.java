@@ -1,4 +1,4 @@
-package com.superescuadronalfa.restaurant.activities;
+package com.superescuadronalfa.restaurant.activities.adapters;
 
 import com.superescuadronalfa.restaurant.dbEntities.Mesa;
 
