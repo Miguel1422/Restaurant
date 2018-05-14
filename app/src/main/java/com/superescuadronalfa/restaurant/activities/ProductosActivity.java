@@ -1,10 +1,13 @@
 package com.superescuadronalfa.restaurant.activities;
 
+import android.annotation.SuppressLint;
+import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -15,8 +18,10 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.superescuadronalfa.restaurant.R;
+import com.superescuadronalfa.restaurant.activities.adapters.MyProductoItemRecyclerViewAdapter;
 import com.superescuadronalfa.restaurant.activities.adapters.SectionsPagerAdapter;
 import com.superescuadronalfa.restaurant.dbEntities.Producto;
+import com.superescuadronalfa.restaurant.dbEntities.TipoProducto;
 import com.superescuadronalfa.restaurant.dbEntities.control.ControlProductos;
 import com.superescuadronalfa.restaurant.dbEntities.helpers.OrganizarProductos;
 
@@ -54,8 +59,7 @@ public class ProductosActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar);
 
         progressBar.setVisibility(View.VISIBLE);
-        Log.w("Create", "Creating the Productos acivirty");
-        System.out.println("Creating the Productos acivirty");
+        Log.d("Create", "Creating the Productos acivirty");
         new LoadContent().execute();
     }
 
@@ -88,6 +92,61 @@ public class ProductosActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @SuppressLint("StaticFieldLeak")
+    private void loadAndShowVariantes(final Producto p) {
+        if (!p.hasTiposLoaded()) {
+            progressBar.setVisibility(View.VISIBLE);
+            new AsyncTask<Void, Void, Boolean>() {
+                @Override
+                protected Boolean doInBackground(Void... voids) {
+                    p.getTipoProductos().size();
+                    return true;
+                }
+
+                @Override
+                protected void onPostExecute(Boolean aBoolean) {
+                    super.onPostExecute(aBoolean);
+                    progressBar.setVisibility(View.GONE);
+
+                    if (aBoolean) {
+                        showVariantes(p);
+                    } else {
+                        Toast.makeText(getApplicationContext(), "Ha ocurrido un error, comprueba tu conexion", Toast.LENGTH_LONG).show();
+                    }
+                }
+            }.execute();
+        } else {
+            showVariantes(p);
+        }
+    }
+
+    private void showVariantes(Producto p) {
+        if (p.getTipoProductos().size() < 1) {
+            Toast.makeText(getApplicationContext(), "El producto seleccionado no tiene tamaños, consulte al administrador para agregarlos", Toast.LENGTH_LONG).show();
+            return;
+        }
+        String colors[] = new String[p.getTipoProductos().size()];
+        final TipoProducto[] tipos = new TipoProducto[colors.length];
+        p.getTipoProductos().toArray(tipos);
+
+
+        for (int i = 0; i < colors.length; i++) {
+            colors[i] = tipos[i].getNombreTipo(); // + " " + CurrencyConverter.currencyFormat(tipos[i].getPrecioTipo());
+        }
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setNegativeButton("Cancelar", null);
+        builder.setTitle("Escoge un tamaño");
+        builder.setItems(colors, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Toast.makeText(getApplicationContext(), tipos[which].getNombreTipo() + " pressed", Toast.LENGTH_SHORT).show();
+            }
+        });
+        builder.show();
+    }
+
+
     private class LoadContent extends AsyncTask<Void, Void, Boolean> {
         private List<List<Producto>> productosPorCategoria;
 
@@ -110,7 +169,13 @@ public class ProductosActivity extends AppCompatActivity {
             if (success) {
                 // Create the adapter that will return a fragment for each of the three
                 // primary sections of the activity.
-                mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager(), productosPorCategoria, 2);
+                mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager(), productosPorCategoria, new MyProductoItemRecyclerViewAdapter.OnListFragmentInteractionListener() {
+                    @Override
+                    public void onListFragmentInteraction(Producto item) {
+                        Toast.makeText(getApplicationContext(), item.getNombreProducto() + " pressed", Toast.LENGTH_SHORT).show();
+                        loadAndShowVariantes(item);
+                    }
+                });
 
                 // Set up the ViewPager with the sections adapter.
                 mViewPager = findViewById(R.id.container);

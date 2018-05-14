@@ -6,10 +6,13 @@ import android.os.Parcelable;
 
 import com.superescuadronalfa.restaurant.dbEntities.control.ControlProductos;
 
+import java.util.List;
+
 public class Producto implements Parcelable {
     private int idProducto;
     private String nombreProducto;
     private CategoriaProducto categoriaProducto;
+    private List<TipoProducto> tipoProductos;
     public static final Creator<Producto> CREATOR = new Creator<Producto>() {
         @Override
         public Producto createFromParcel(Parcel in) {
@@ -70,6 +73,25 @@ public class Producto implements Parcelable {
 
     public void setCategoriaProducto(CategoriaProducto categoriaProducto) {
         this.categoriaProducto = categoriaProducto;
+    }
+
+    public boolean hasTiposLoaded() {
+        return tipoProductos != null;
+    }
+
+    public List<TipoProducto> getTipoProductos() {
+        if (tipoProductos == null) loadTipos();
+        if (tipoProductos == null)
+            throw new NullPointerException("No se han podido cargar los tipos");
+        return tipoProductos;
+    }
+
+    public void setTipoProductos(List<TipoProducto> tipoProductos) {
+        this.tipoProductos = tipoProductos;
+    }
+
+    private void loadTipos() {
+        tipoProductos = ControlProductos.getInstance().tiposDelProducto(this);
     }
 
     private void loadImage() {
