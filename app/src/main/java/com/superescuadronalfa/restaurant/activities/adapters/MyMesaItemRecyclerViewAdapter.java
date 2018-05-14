@@ -75,6 +75,25 @@ public class MyMesaItemRecyclerViewAdapter extends RecyclerView.Adapter<MyMesaIt
         return mValues.size();
     }
 
+    /**
+     * This interface must be implemented by activities that contain this
+     * fragment to allow an interaction in this fragment to be communicated
+     * to the activity and potentially other fragments contained in that
+     * activity.
+     * <p/>
+     * See the Android Training lesson <a href=
+     * "http://developer.android.com/training/basics/fragments/communicating.html"
+     * >Communicating with Other Fragments</a> for more information.
+     */
+    public interface OnListFragmentInteractionListener {
+        // TODO: Update argument type and name
+        void onListFragmentInteraction(Mesa item);
+
+        void onListImageClicked(Mesa mItem);
+
+        void onListButtonClicked(Mesa mItem);
+    }
+
     public class ViewHolder extends RecyclerView.ViewHolder {
         public final View mView;
         public final TextView mIdView;
@@ -89,7 +108,7 @@ public class MyMesaItemRecyclerViewAdapter extends RecyclerView.Adapter<MyMesaIt
             mIdView = view.findViewById(R.id.producto_name);
             mContentView = view.findViewById(R.id.person_age);
             imageView = view.findViewById(R.id.producto_photo);
-            btn = view.findViewById(R.id.button);
+            btn = view.findViewById(R.id.button_delete);
         }
 
         @Override
@@ -97,4 +116,5 @@ public class MyMesaItemRecyclerViewAdapter extends RecyclerView.Adapter<MyMesaIt
             return super.toString() + " '" + mContentView.getText() + "'";
         }
     }
+
 }

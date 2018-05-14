@@ -26,4 +26,7 @@
     <string name="tab_text_2">Tab 2</string>
     <string name="tab_text_3">Tab 3</string>
     <string name="section_format">Hello World from section: %1$d</string>
+    <string name="btn_eliminar">Delete</string>
+    <string name="tv_vari">Variants</string>
+    <string name="button_edit">Edit</string>
 </resources>

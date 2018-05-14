@@ -31,32 +31,60 @@
                 app:srcCompat="@mipmap/ic_launcher" />
 
             <TextView
-
                 android:id="@+id/producto_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
-                android:layout_toRightOf="@+id/producto_photo"
-                android:text="Hola"
-                android:textSize="30sp"
+                android:layout_toEndOf="@+id/producto_photo"
+                android:textSize="16sp"
                 tools:text="Name" />
 
             <TextView
-                android:id="@+id/person_age"
+                android:id="@+id/producto_cantidad"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentTop="true"
+                android:textSize="16sp"
+                tools:text="Name" />
+
+            <TextView
+                android:id="@+id/descripcion_pedido"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/producto_name"
-                android:layout_toRightOf="@+id/producto_photo"
-                android:text="Age" />
+                android:layout_toEndOf="@+id/producto_photo" />
+
 
             <Button
                 android:id="@+id/button_delete"
-                android:layout_width="154dp"
+                style="?android:attr/borderlessButtonStyle"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
                 android:layout_alignParentEnd="true"
-                android:text="Button"
-                android:visibility="invisible" />
+                android:text="@string/btn_eliminar"
+                android:textColor="?android:attr/colorEdgeEffect" />
+
+
+            <Button
+                android:id="@+id/button_edit"
+                style="?android:attr/borderlessButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_toLeftOf="@+id/button_delete"
+                android:text="@string/button_edit"
+                android:textColor="?android:attr/colorPressedHighlight" />
+
+            <ListView
+                android:id="@+id/lv_pedidos"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignStart="@+id/producto_photo"
+                android:layout_below="@+id/producto_photo"
+                android:layout_toStartOf="@+id/button_edit" />
+
 
         </RelativeLayout>
 

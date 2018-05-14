@@ -26,23 +26,22 @@ import java.util.List;
 public class SectionsPagerAdapter extends FragmentStatePagerAdapter {
 
     private List<List<Producto>> productosPorCategoria;
-    private static int columnCount;
+    public static int COLUMN_COUNT = 2;
+    private MyProductoItemRecyclerViewAdapter.OnListFragmentInteractionListener listener;
 
-    public SectionsPagerAdapter(FragmentManager fm, List<List<Producto>> productosPorCategoria) {
-        this(fm, productosPorCategoria, 2);
-    }
-
-    public SectionsPagerAdapter(FragmentManager fm, List<List<Producto>> productosPorCategoria, int columnCount) {
+    public SectionsPagerAdapter(FragmentManager fm, List<List<Producto>> productosPorCategoria,
+                                MyProductoItemRecyclerViewAdapter.OnListFragmentInteractionListener listener) {
         super(fm);
         this.productosPorCategoria = productosPorCategoria;
-        SectionsPagerAdapter.columnCount = columnCount;
+        this.listener = listener;
     }
+
 
     @Override
     public Fragment getItem(int position) {
         // getItem is called to instantiate the fragment for the given page.
         // Return a PlaceholderFragment (defined as a static inner class below).
-        return PlaceholderFragment.newInstance(productosPorCategoria.get(position));
+        return PlaceholderFragment.newInstance(productosPorCategoria.get(position), listener);
     }
 
     @Override
@@ -59,7 +58,8 @@ public class SectionsPagerAdapter extends FragmentStatePagerAdapter {
          * fragment.
          */
         private static final String ARG_SECTION_NUMBER = "section_number";
-        private List<Producto> productos;
+        private MyProductoItemRecyclerViewAdapter.OnListFragmentInteractionListener listener;
+
         public PlaceholderFragment() {
         }
 
@@ -69,19 +69,15 @@ public class SectionsPagerAdapter extends FragmentStatePagerAdapter {
          *
          * @param productos Los productos pertenecientes a esta categoria
          */
-        public static PlaceholderFragment newInstance(List<Producto> productos) {
+        public static PlaceholderFragment newInstance(List<Producto> productos, MyProductoItemRecyclerViewAdapter.OnListFragmentInteractionListener listener) {
             PlaceholderFragment fragment = new PlaceholderFragment();
-            fragment.setProductos(productos);
+            fragment.listener = listener;
             Bundle args = new Bundle();
-
             args.putParcelableArrayList(ARG_SECTION_NUMBER, (ArrayList<? extends Parcelable>) productos);
             fragment.setArguments(args);
             return fragment;
         }
 
-        private void setProductos(List<Producto> productos) {
-            this.productos = productos;
-        }
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -91,15 +87,10 @@ public class SectionsPagerAdapter extends FragmentStatePagerAdapter {
             RecyclerView rv = rootView.findViewById(R.id.rv);
             Context context = rv.getContext();
             RecyclerView recyclerView = rv;
-            recyclerView.setLayoutManager(new GridLayoutManager(context, Math.max(columnCount, 2)));
+            recyclerView.setLayoutManager(new GridLayoutManager(context, COLUMN_COUNT));
 
             ArrayList<Producto> productos = getArguments().getParcelableArrayList(ARG_SECTION_NUMBER);
-            recyclerView.setAdapter(new MyProductoItemRecyclerViewAdapter(productos, new MyProductoItemRecyclerViewAdapter.OnListFragmentInteractionListener() {
-                @Override
-                public void onListFragmentInteraction(Producto item) {
-
-                }
-            }));
+            recyclerView.setAdapter(new MyProductoItemRecyclerViewAdapter(productos, listener));
 
             return rootView;
         }

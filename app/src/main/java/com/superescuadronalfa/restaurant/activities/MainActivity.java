@@ -26,7 +26,6 @@ import android.widget.Toast;
 import com.superescuadronalfa.restaurant.LoginActivity;
 import com.superescuadronalfa.restaurant.R;
 import com.superescuadronalfa.restaurant.activities.adapters.MyMesaItemRecyclerViewAdapter;
-import com.superescuadronalfa.restaurant.activities.adapters.OnListFragmentInteractionListener;
 import com.superescuadronalfa.restaurant.dbEntities.Mesa;
 import com.superescuadronalfa.restaurant.dbEntities.Trabajador;
 import com.superescuadronalfa.restaurant.dbEntities.control.ControlMesas;
@@ -96,7 +95,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void initializeAdapter(List<Mesa> mesas) {
 
-        MyMesaItemRecyclerViewAdapter adap = new MyMesaItemRecyclerViewAdapter(mesas, new OnListFragmentInteractionListener() {
+        MyMesaItemRecyclerViewAdapter adap = new MyMesaItemRecyclerViewAdapter(mesas, new MyMesaItemRecyclerViewAdapter.OnListFragmentInteractionListener() {
             @Override
             public void onListFragmentInteraction(Mesa item) {
                 Intent mesaIntent = new Intent(MainActivity.this, PedidosActivity.class);

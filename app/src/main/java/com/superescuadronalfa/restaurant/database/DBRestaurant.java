@@ -17,7 +17,7 @@ public class DBRestaurant {
             for (Object o : params) {
                 statement.setObject(index++, o);
             }
-            boolean res = statement.execute();
+            boolean res = statement.executeUpdate() > 0;
             statement.close();
             conexion.close();
             return res;

@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import com.superescuadronalfa.restaurant.database.DBRestaurant;
 import com.superescuadronalfa.restaurant.dbEntities.CategoriaProducto;
 import com.superescuadronalfa.restaurant.dbEntities.Producto;
+import com.superescuadronalfa.restaurant.dbEntities.TipoProducto;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -69,6 +70,27 @@ public class ControlProductos implements IControlEntidad<Producto> {
         String nombreProducto = result.getString(NOMBRE_PRODUCTO);
         CategoriaProducto categoriaProducto = ControlCategorias.getInstance().fromResultSet(result);
         return new Producto(iDProducto, nombreProducto, categoriaProducto);
+    }
+
+    public List<TipoProducto> tiposDelProducto(Producto p) {
+        String buscarTipos = "" +
+                "SELECT * FROM TipoProducto WHERE id_producto = ?\n" +
+                "ORDER BY precio_tipo, nombre_tipo";
+        try {
+            ResultSet result = DBRestaurant.ejecutaConsulta(buscarTipos, p.getIdProducto());
+            ArrayList<TipoProducto> tipos = new ArrayList<>();
+            while (result.next()) {
+                TipoProducto actual = ControlTipoProducto.getInstance().fromResultSet(result);
+                actual.setProducto(p);
+                tipos.add(actual);
+            }
+            return tipos;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            DBRestaurant.close();
+        }
+        return null;
     }
 
     public Bitmap burcarImagen(Producto producto) {
