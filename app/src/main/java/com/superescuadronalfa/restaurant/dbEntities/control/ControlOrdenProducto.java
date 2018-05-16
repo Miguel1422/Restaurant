@@ -55,8 +55,9 @@ public class ControlOrdenProducto implements IControlEntidad<OrdenProducto> {
         int cantidad = result.getInt("cantidad");
         String comentarios = result.getString("comentarios");
         String status = result.getString("status");
-
-        return new OrdenProducto(idOrdenProducto, tp, precio, cantidad, comentarios, status);
+        OrdenProducto op = new OrdenProducto(idOrdenProducto, tp, precio, cantidad, comentarios, status);
+        op.setVariantesDeLaOrden(ControlProductoVariantes.getInstance().fromResultSetList(result));
+        return op;
     }
 
     public List<ProductoVariante> variantesDeLaOrden(OrdenProducto o) {

@@ -5,7 +5,9 @@ import com.superescuadronalfa.restaurant.dbEntities.ProductoVariante;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.StringTokenizer;
 
 public class ControlProductoVariantes implements IControlEntidad<ProductoVariante> {
     private static final String ID_PRODUCTO_VARIANTE = "id_producto_variante";
@@ -51,5 +53,26 @@ public class ControlProductoVariantes implements IControlEntidad<ProductoVariant
         boolean disponible = result.getBoolean(DISPONIBLE);
         BigDecimal precio = result.getBigDecimal(PRECIO_VARIANTE);
         return new ProductoVariante(id, nombre, descripcion, disponible, precio);
+    }
+
+    /****
+     * @param result Resuslset donde esta guardada la informacion (variantes como una lista)
+     * @return La lista con esas variantes
+     */
+    public List<ProductoVariante> fromResultSetList(ResultSet result) throws SQLException {
+        String variantes = result.getString("variantes");
+        if (variantes == null) return new ArrayList<>();
+        StringTokenizer st = new StringTokenizer(variantes, "|");
+
+        ArrayList<ProductoVariante> listvariantes = new ArrayList<>();
+        while (st.hasMoreTokens()) {
+            StringTokenizer st2 = new StringTokenizer(st.nextToken(), ",");
+            int id = Integer.parseInt(st2.nextToken().trim());
+            String nombre = st2.nextToken().trim();
+            BigDecimal precio = new BigDecimal(st2.nextToken().trim());
+            listvariantes.add(new ProductoVariante(id, nombre, "", true, precio));
+            // TODO agregar descripcion
+        }
+        return listvariantes;
     }
 }

@@ -33,6 +33,10 @@ public class OrdenProducto {
         return variantesDeLaOrden;
     }
 
+    public void setVariantesDeLaOrden(List<ProductoVariante> variantesDeLaOrden) {
+        this.variantesDeLaOrden = variantesDeLaOrden;
+    }
+
     private void loadVariantes() {
         variantesDeLaOrden = ControlOrdenProducto.getInstance().variantesDeLaOrden(this);
     }

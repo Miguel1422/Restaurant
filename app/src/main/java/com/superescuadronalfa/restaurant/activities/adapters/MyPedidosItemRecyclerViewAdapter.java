@@ -7,7 +7,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.superescuadronalfa.restaurant.R;
@@ -52,9 +51,7 @@ public class MyPedidosItemRecyclerViewAdapter extends RecyclerView.Adapter<MyPed
         OrdenProducto ac = mValues.get(position);
 
         if (ac.getVariantesDeLaOrden().size() > 0) {
-            TextView textView = new TextView(context);
-            textView.setText("Hello. I'm a header view");
-            holder.mListView.addHeaderView(textView);
+            // TODO agregar la lista de variantes
         }
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
@@ -101,7 +98,6 @@ public class MyPedidosItemRecyclerViewAdapter extends RecyclerView.Adapter<MyPed
         public final TextView mDescriptionView;
         public final Button mBtnView;
         public final TextView mCantidadView;
-        public final ListView mListView;
 
         public OrdenProducto mItem;
 
@@ -113,7 +109,6 @@ public class MyPedidosItemRecyclerViewAdapter extends RecyclerView.Adapter<MyPed
             mDescriptionView = view.findViewById(R.id.descripcion_pedido);
             mBtnView = view.findViewById(R.id.button_delete);
             mCantidadView = view.findViewById(R.id.producto_cantidad);
-            mListView = view.findViewById(R.id.lv_pedidos);
         }
 
         @Override

@@ -1,5 +1,6 @@
 package com.superescuadronalfa.restaurant.database;
 
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -8,6 +9,7 @@ import java.sql.SQLException;
 public class DBRestaurant {
     private static Connection conexion;
     private static PreparedStatement statement;
+    private static CallableStatement storedProcedure;
 
     public static boolean ejecutaComando(String query, Object... params) {
         conexion = Conexion.getConexion();
@@ -45,6 +47,24 @@ public class DBRestaurant {
         return null;
     }
 
+    public static ResultSet ejecutaConsultaPreparada(String query, Object... params) {
+        conexion = Conexion.getConexion();
+        try {
+            storedProcedure = conexion.prepareCall(query);
+            int index = 1;
+            for (Object o : params) {
+                storedProcedure.setObject(index++, o);
+            }
+            ResultSet res = storedProcedure.executeQuery();
+            return res;
+        } catch (SQLException | NullPointerException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public static void close() {
         if (statement != null) {
             try {
@@ -58,6 +78,14 @@ public class DBRestaurant {
             try {
                 conexion.close();
                 conexion = null;
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        if (storedProcedure != null) {
+            try {
+                storedProcedure.close();
+                storedProcedure = null;
             } catch (SQLException e) {
                 e.printStackTrace();
             }

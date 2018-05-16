@@ -20,6 +20,7 @@ import com.superescuadronalfa.restaurant.activities.adapters.MyPedidosItemRecycl
 import com.superescuadronalfa.restaurant.dbEntities.Mesa;
 import com.superescuadronalfa.restaurant.dbEntities.Orden;
 import com.superescuadronalfa.restaurant.dbEntities.OrdenProducto;
+import com.superescuadronalfa.restaurant.dbEntities.ProductoVariante;
 import com.superescuadronalfa.restaurant.dbEntities.control.ControlOrdenes;
 
 import java.util.List;
@@ -31,7 +32,7 @@ public class PedidosActivity extends AppCompatActivity {
     private RecyclerView rv;
     private ProgressBar progressBar;
     private MyPedidosItemRecyclerViewAdapter adap;
-
+    private FloatingActionButton fab;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,7 +40,7 @@ public class PedidosActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = findViewById(R.id.fab);
+        fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -78,6 +79,13 @@ public class PedidosActivity extends AppCompatActivity {
 
 
     private void initializeAdapter(List<OrdenProducto> ordenProductos) {
+
+        for (OrdenProducto op : ordenProductos) {
+            for (ProductoVariante pv : op.getVariantesDeLaOrden()) {
+                Toast.makeText(this, pv.getNombreVariante(), Toast.LENGTH_SHORT).show();
+            }
+        }
+
         adap = new MyPedidosItemRecyclerViewAdapter(this, ordenProductos, new MyPedidosItemRecyclerViewAdapter.OnListFragmentInteractionListener() {
             @Override
             public void onListFragmentInteraction(OrdenProducto item) {
@@ -132,6 +140,7 @@ public class PedidosActivity extends AppCompatActivity {
             switch (result) {
                 case ORDEN_CARGADA:
                     initializeAdapter(orden.getProductos());
+                    fab.setVisibility(View.VISIBLE);
                     break;
                 case ORDEN_NO_CREADA:
 
@@ -180,6 +189,7 @@ public class PedidosActivity extends AppCompatActivity {
             if (aBoolean) {
                 orden = ordentemp;
                 Toast.makeText(getApplicationContext(), "Orden creada", Toast.LENGTH_SHORT).show();
+                fab.setVisibility(View.VISIBLE);
             } else {
                 Toast.makeText(getApplicationContext(), "Error, comprueba tu conexion", Toast.LENGTH_SHORT).show();
             }

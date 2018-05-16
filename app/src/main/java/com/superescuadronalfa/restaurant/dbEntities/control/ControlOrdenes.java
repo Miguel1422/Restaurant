@@ -62,9 +62,12 @@ public class ControlOrdenes implements IControlEntidad<Orden> {
                 "INNER JOIN CategoriaProducto AS CP\n" +
                 "ON CP.id_categoria = P.id_categoria\n" +
                 "WHERE OP.id_orden = ?";
+
+        String call = "EXECUTE getPedidosDeOrden @IDOrden = ?";
         try {
             ArrayList<OrdenProducto> lista = new ArrayList<>();
-            ResultSet result = DBRestaurant.ejecutaConsulta(getProductos, o.getIdOrden());
+            // ResultSet result = DBRestaurant.ejecutaConsulta(getProductos, o.getIdOrden());
+            ResultSet result = DBRestaurant.ejecutaConsultaPreparada(call, o.getIdOrden());
             while (result.next()) {
                 OrdenProducto ordenProducto = ControlOrdenProducto.getInstance().fromResultSet(result);
                 ordenProducto.setOrden(o);

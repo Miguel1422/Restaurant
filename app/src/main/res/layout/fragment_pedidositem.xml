@@ -39,21 +39,23 @@
                 android:textSize="16sp"
                 tools:text="Name" />
 
-            <TextView
-                android:id="@+id/producto_cantidad"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_alignParentTop="true"
-                android:textSize="16sp"
-                tools:text="Name" />
 
             <TextView
                 android:id="@+id/descripcion_pedido"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/producto_name"
-                android:layout_toEndOf="@+id/producto_photo" />
+                android:layout_toEndOf="@+id/producto_photo"
+                android:text="test" />
+
+            <TextView
+                android:id="@+id/producto_cantidad"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignStart="@+id/producto_name"
+                android:layout_below="@+id/descripcion_pedido"
+                android:textSize="16sp"
+                tools:text="Name" />
 
 
             <Button
@@ -76,14 +78,6 @@
                 android:layout_toLeftOf="@+id/button_delete"
                 android:text="@string/button_edit"
                 android:textColor="?android:attr/colorPressedHighlight" />
-
-            <ListView
-                android:id="@+id/lv_pedidos"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignStart="@+id/producto_photo"
-                android:layout_below="@+id/producto_photo"
-                android:layout_toStartOf="@+id/button_edit" />
 
 
         </RelativeLayout>
