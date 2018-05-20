@@ -69,8 +69,7 @@ public class ControlOrdenes implements IControlEntidad<Orden> {
             // ResultSet result = DBRestaurant.ejecutaConsulta(getProductos, o.getIdOrden());
             ResultSet result = DBRestaurant.ejecutaConsultaPreparada(call, o.getIdOrden());
             while (result.next()) {
-                OrdenProducto ordenProducto = ControlOrdenProducto.getInstance().fromResultSet(result);
-                ordenProducto.setOrden(o);
+                OrdenProducto ordenProducto = ControlOrdenProducto.getInstance().fromResultSet(result, o);
                 lista.add(ordenProducto);
             }
             return lista;

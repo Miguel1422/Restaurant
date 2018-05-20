@@ -65,6 +65,25 @@ public class DBRestaurant {
         return null;
     }
 
+    public static boolean ejecutaComandoPreparada(String query, Object... params) {
+        conexion = Conexion.getConexion();
+        try {
+            storedProcedure = conexion.prepareCall(query);
+            int index = 1;
+            for (Object o : params) {
+                storedProcedure.setObject(index++, o);
+            }
+            return storedProcedure.executeUpdate() > 0;
+        } catch (SQLException | NullPointerException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            close();
+        }
+        return false;
+    }
+
     public static void close() {
         if (statement != null) {
             try {

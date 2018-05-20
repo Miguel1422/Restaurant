@@ -1,6 +1,9 @@
 package com.superescuadronalfa.restaurant.dbEntities.control;
 
+import android.util.Log;
+
 import com.superescuadronalfa.restaurant.database.DBRestaurant;
+import com.superescuadronalfa.restaurant.dbEntities.Orden;
 import com.superescuadronalfa.restaurant.dbEntities.OrdenProducto;
 import com.superescuadronalfa.restaurant.dbEntities.Producto;
 import com.superescuadronalfa.restaurant.dbEntities.ProductoVariante;
@@ -25,6 +28,16 @@ public class ControlOrdenProducto implements IControlEntidad<OrdenProducto> {
 
     @Override
     public boolean agregar(OrdenProducto entidad) {
+        String query = "EXECUTE agregarOrdenProducto @IDOrden = ?, @IDTipoProducto = ?, @IDVariantes = ?, @Cantidad = ?, @Comentarios = ?";
+        StringBuilder variantes = new StringBuilder();
+        for (ProductoVariante pv : entidad.getVariantesDeLaOrden()) {
+            if (variantes.length() > 0) variantes.append(',');
+            variantes.append(pv.getIdProductoVariante());
+        }
+        if (DBRestaurant.ejecutaComandoPreparada(query, entidad.getOrden().getIdOrden(), entidad.getTipoProducto().getIdTipoProducto(), variantes.toString(), entidad.getCantidad(), entidad.getComentarios())) {
+            return true;
+        }
+        Log.d("Error ", entidad.getOrden().getIdOrden() + ", " + entidad.getTipoProducto().getIdTipoProducto() + "," + variantes.toString() + "," + entidad.getCantidad() + "," + entidad.getComentarios());
         return false;
     }
 
@@ -35,6 +48,14 @@ public class ControlOrdenProducto implements IControlEntidad<OrdenProducto> {
 
     @Override
     public boolean eliminar(OrdenProducto entidad) {
+        String query = "DELETE FROM OrdenProducto WHERE id_orden_producto = ?";
+        try {
+            return DBRestaurant.ejecutaComando(query, entidad.getIdOrdenProducto());
+        } catch (Exception e) {
+            Log.d("Error", "No se pudo eliminar la orden");
+        } finally {
+            DBRestaurant.close();
+        }
         return false;
     }
 
@@ -44,7 +65,11 @@ public class ControlOrdenProducto implements IControlEntidad<OrdenProducto> {
     }
 
     @Override
-    public OrdenProducto fromResultSet(ResultSet result) throws SQLException {
+    public OrdenProducto fromResultSet(ResultSet result) {
+        throw new RuntimeException("No implementado");
+    }
+
+    public OrdenProducto fromResultSet(ResultSet result, Orden orden) throws SQLException {
         int idOrdenProducto = result.getInt("id_orden_producto");
         TipoProducto tp = ControlTipoProducto.getInstance().fromResultSet(result);
 
@@ -55,7 +80,7 @@ public class ControlOrdenProducto implements IControlEntidad<OrdenProducto> {
         int cantidad = result.getInt("cantidad");
         String comentarios = result.getString("comentarios");
         String status = result.getString("status");
-        OrdenProducto op = new OrdenProducto(idOrdenProducto, tp, precio, cantidad, comentarios, status);
+        OrdenProducto op = new OrdenProducto(idOrdenProducto, orden, tp, precio, cantidad, comentarios, status);
         op.setVariantesDeLaOrden(ControlProductoVariantes.getInstance().fromResultSetList(result));
         return op;
     }
@@ -71,7 +96,7 @@ public class ControlOrdenProducto implements IControlEntidad<OrdenProducto> {
 
         try {
             ArrayList<ProductoVariante> lista = new ArrayList<>();
-            ResultSet result = DBRestaurant.ejecutaConsulta(getVariantes, o.getIdOrdenProducto());
+            ResultSet result = DBRestaurant.ejecutaConsulta(getVariantes, o.getOrden().getIdOrden());
             while (result.next()) {
                 ProductoVariante ac = ControlProductoVariantes.getInstance().fromResultSet(result);
                 ac.setTipoProducto(o.getTipoProducto());

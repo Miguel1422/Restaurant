@@ -20,8 +20,11 @@ import android.widget.Toast;
 import com.superescuadronalfa.restaurant.R;
 import com.superescuadronalfa.restaurant.activities.adapters.MyProductoItemRecyclerViewAdapter;
 import com.superescuadronalfa.restaurant.activities.adapters.SectionsPagerAdapter;
+import com.superescuadronalfa.restaurant.dbEntities.Orden;
+import com.superescuadronalfa.restaurant.dbEntities.OrdenProducto;
 import com.superescuadronalfa.restaurant.dbEntities.Producto;
 import com.superescuadronalfa.restaurant.dbEntities.TipoProducto;
+import com.superescuadronalfa.restaurant.dbEntities.control.ControlOrdenProducto;
 import com.superescuadronalfa.restaurant.dbEntities.control.ControlProductos;
 import com.superescuadronalfa.restaurant.dbEntities.helpers.OrganizarProductos;
 
@@ -29,6 +32,7 @@ import java.util.List;
 
 public class ProductosActivity extends AppCompatActivity {
 
+    public static final String EXTRA_ORDEN = "com.superescuadronalfa.restaurant.EXTRA_ORDEN";
     public static final int AGREGAR_PRODUCTO = 123;
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -46,6 +50,7 @@ public class ProductosActivity extends AppCompatActivity {
     private ViewPager mViewPager;
     private TabLayout tabLayout;
     private ProgressBar progressBar;
+    private Orden ordenActual;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +60,11 @@ public class ProductosActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+
+        Bundle extras = getIntent().getExtras();
+
+        ordenActual = extras.getParcelable(EXTRA_ORDEN);
 
         progressBar = findViewById(R.id.progressBar);
 
@@ -93,13 +103,13 @@ public class ProductosActivity extends AppCompatActivity {
     }
 
     @SuppressLint("StaticFieldLeak")
-    private void loadAndShowVariantes(final Producto p) {
-        if (!p.hasTiposLoaded()) {
+    private void loadAndShowVariantes(final Producto producto) {
+        if (!producto.hasTiposLoaded()) {
             progressBar.setVisibility(View.VISIBLE);
             new AsyncTask<Void, Void, Boolean>() {
                 @Override
                 protected Boolean doInBackground(Void... voids) {
-                    p.getTipoProductos().size();
+                    producto.getTipoProductos().size();
                     return true;
                 }
 
@@ -109,14 +119,14 @@ public class ProductosActivity extends AppCompatActivity {
                     progressBar.setVisibility(View.GONE);
 
                     if (aBoolean) {
-                        showVariantes(p);
+                        showVariantes(producto);
                     } else {
                         Toast.makeText(getApplicationContext(), "Ha ocurrido un error, comprueba tu conexion", Toast.LENGTH_LONG).show();
                     }
                 }
             }.execute();
         } else {
-            showVariantes(p);
+            showVariantes(producto);
         }
     }
 
@@ -125,27 +135,51 @@ public class ProductosActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(), "El producto seleccionado no tiene tamaños, consulte al administrador para agregarlos", Toast.LENGTH_LONG).show();
             return;
         }
-        String colors[] = new String[p.getTipoProductos().size()];
-        final TipoProducto[] tipos = new TipoProducto[colors.length];
+        String variantes[] = new String[p.getTipoProductos().size()];
+        final TipoProducto[] tipos = new TipoProducto[variantes.length];
         p.getTipoProductos().toArray(tipos);
 
 
-        for (int i = 0; i < colors.length; i++) {
-            colors[i] = tipos[i].getNombreTipo(); // + " " + CurrencyConverter.currencyFormat(tipos[i].getPrecioTipo());
+        for (int i = 0; i < variantes.length; i++) {
+            variantes[i] = tipos[i].getNombreTipo(); // + " " + CurrencyConverter.currencyFormat(tipos[i].getPrecioTipo());
         }
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setNegativeButton("Cancelar", null);
         builder.setTitle("Escoge un tamaño");
-        builder.setItems(colors, new DialogInterface.OnClickListener() {
+        builder.setItems(variantes, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                Toast.makeText(getApplicationContext(), tipos[which].getNombreTipo() + " pressed", Toast.LENGTH_SHORT).show();
+                agregarProducto(tipos[which]);
+                // Toast.makeText(getApplicationContext(), tipos[which].getNombreTipo() + " pressed", Toast.LENGTH_SHORT).show();
             }
+
+
         });
         builder.show();
     }
 
+    @SuppressLint("StaticFieldLeak")
+    private void agregarProducto(TipoProducto tipo) {
+        final OrdenProducto op = new OrdenProducto(0, ordenActual, tipo, tipo.getPrecioTipo(), 1, "", "En cola");
+        new AsyncTask<Void, Void, Boolean>() {
+            @Override
+            protected Boolean doInBackground(Void... voids) {
+                return ControlOrdenProducto.getInstance().agregar(op);
+            }
+
+            @Override
+            protected void onPostExecute(Boolean aBoolean) {
+                super.onPostExecute(aBoolean);
+                if (aBoolean) {
+                    Toast.makeText(ProductosActivity.this, "Se ha agregado el pedido", Toast.LENGTH_SHORT).show();
+                    setResult(RESULT_OK/*, Intent*/);
+                } else {
+                    Toast.makeText(ProductosActivity.this, "Error comprueba tu conexion", Toast.LENGTH_LONG).show();
+                }
+            }
+        }.execute();
+    }
 
     private class LoadContent extends AsyncTask<Void, Void, Boolean> {
         private List<List<Producto>> productosPorCategoria;
@@ -172,7 +206,7 @@ public class ProductosActivity extends AppCompatActivity {
                 mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager(), productosPorCategoria, new MyProductoItemRecyclerViewAdapter.OnListFragmentInteractionListener() {
                     @Override
                     public void onListFragmentInteraction(Producto item) {
-                        Toast.makeText(getApplicationContext(), item.getNombreProducto() + " pressed", Toast.LENGTH_SHORT).show();
+                        // Toast.makeText(getApplicationContext(), item.getNombreProducto() + " pressed", Toast.LENGTH_SHORT).show();
                         loadAndShowVariantes(item);
                     }
                 });
@@ -191,7 +225,6 @@ public class ProductosActivity extends AppCompatActivity {
                     tabLayout.addTab(tabLayout.newTab().setText(categoria.get(0).getCategoriaProducto().getNombreCategoria()));
                 }
 
-                setResult(RESULT_OK/*, Intent*/);
                 // Agrega tabs y llena los fragmeents
             } else {
                 Toast.makeText(getApplicationContext(), "Error no se pudieron cargar lasd categorias", Toast.LENGTH_LONG).show();
