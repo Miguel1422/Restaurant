@@ -70,8 +70,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         progressBar = findViewById(R.id.progressBar);
 
         progressBar.setVisibility(View.VISIBLE);
-        UserLoggedTask task = new UserLoggedTask(t);
-        task.execute();
+
 
         rv = findViewById(R.id.rv);
 
@@ -82,6 +81,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         rv.setHasFixedSize(true);
 
         initializeData();
+
+        UserLoggedTask task = new UserLoggedTask(t);
+        task.execute();
     }
 
     protected void onSaveInstanceState(Bundle bundle) {

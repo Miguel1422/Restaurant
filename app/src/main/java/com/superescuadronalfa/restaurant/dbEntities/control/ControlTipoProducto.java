@@ -1,6 +1,7 @@
 package com.superescuadronalfa.restaurant.dbEntities.control;
 
 import com.superescuadronalfa.restaurant.database.DBRestaurant;
+import com.superescuadronalfa.restaurant.dbEntities.Producto;
 import com.superescuadronalfa.restaurant.dbEntities.ProductoVariante;
 import com.superescuadronalfa.restaurant.dbEntities.TipoProducto;
 
@@ -15,6 +16,7 @@ public class ControlTipoProducto implements IControlEntidad<TipoProducto> {
     private static String ID_TIPO = "id_tipo_producto";
     private static String NOMBRE_TIPO = "nombre_tipo";
     private static String PRECIO_TIPO = "precio_tipo";
+    private static String VARIANTES = "variantes";
 
     private ControlTipoProducto() {
     }
@@ -73,5 +75,37 @@ public class ControlTipoProducto implements IControlEntidad<TipoProducto> {
         String nombreTipo = result.getString(NOMBRE_TIPO);
         BigDecimal precio = result.getBigDecimal(PRECIO_TIPO);
         return new TipoProducto(idTipo, nombreTipo, precio);
+    }
+
+    /**
+     * @param result      Resultset con la iinformacion
+     * @param hasVariants Si el resulset tiene las variantes
+     * @return Tipo producto
+     * @throws SQLException
+     */
+    public TipoProducto fromResultSet(ResultSet result, boolean hasVariants) throws SQLException {
+        TipoProducto actual = fromResultSet(result);
+        if (!hasVariants) return actual;
+        actual.setVariantes(ControlProductoVariantes.getInstance().fromResultSetList(result));
+        return actual;
+    }
+
+    public List<TipoProducto> getLista(Producto producto) {
+        String query = "EXECUTE getTipoProductos @IDProducto = ?";
+        try {
+            ArrayList<TipoProducto> lista = new ArrayList<>();
+            ResultSet result = DBRestaurant.ejecutaConsultaPreparada(query, producto.getIdProducto());
+            while (result.next()) {
+                TipoProducto actual = fromResultSet(result, true);
+                actual.setProducto(producto);
+                lista.add(actual);
+            }
+            return lista;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            DBRestaurant.close();
+        }
+        return null;
     }
 }

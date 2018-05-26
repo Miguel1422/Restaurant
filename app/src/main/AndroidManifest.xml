@@ -28,8 +28,7 @@
             android:name=".activities.MainActivity"
             android:label="@string/title_activity_main"
             android:launchMode="singleTop"
-            android:theme="@style/AppTheme.NoActionBar">
-        </activity>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".activities.PedidosActivity"
             android:label="@string/title_activity_pedidos"
@@ -49,6 +48,10 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.superescuadronalfa.restaurant.activities.PedidosActivity" />
         </activity>
+        <activity
+            android:name=".activities.EditarPedidoActivity"
+            android:label="Editar Pedido"
+            android:windowSoftInputMode="stateHidden"/>
     </application>
 
 </manifest>

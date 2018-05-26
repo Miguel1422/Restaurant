@@ -41,8 +41,33 @@ public class ControlOrdenProducto implements IControlEntidad<OrdenProducto> {
         return false;
     }
 
+    private String listVariantesToString(List<ProductoVariante> variantesList) {
+        StringBuilder variantes = new StringBuilder();
+        for (ProductoVariante pv : variantesList) {
+            if (variantes.length() > 0) variantes.append(',');
+            variantes.append(pv.getIdProductoVariante());
+        }
+        return variantes.toString();
+    }
     @Override
     public boolean editar(OrdenProducto entidad) {
+        String query = "EXECUTE editarOrdenProducto \n" +
+                "@IDOrdenProducto = ?, \n" +
+                "@IDTipoProducto = ?,\n" +
+                "@IDVariantes = ?,\n" +
+                "@Cantidad = ?,\n" +
+                "@Comentarios = ?";
+
+
+        try {
+            String variantes = listVariantesToString(entidad.getVariantesDeLaOrden());
+            return DBRestaurant.ejecutaComandoPreparada(query, entidad.getIdOrdenProducto(), entidad.getTipoProducto().getIdTipoProducto(), variantes, entidad.getCantidad(), entidad.getComentarios());
+        } catch (Exception e) {
+
+        } finally {
+            DBRestaurant.close();
+        }
+
         return false;
     }
 

@@ -65,10 +65,17 @@ public class MyPedidosItemRecyclerViewAdapter extends RecyclerView.Adapter<MyPed
             }
         });
 
-        holder.mBtnView.setOnClickListener(new View.OnClickListener() {
+        holder.mBtnRemoveView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mListener.onRemoveClicked(holder.mItem, position);
+            }
+        });
+
+        holder.mBtnEditView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mListener.onEditClicked(holder.mItem, position);
             }
         });
     }
@@ -85,10 +92,9 @@ public class MyPedidosItemRecyclerViewAdapter extends RecyclerView.Adapter<MyPed
     }
 
     public interface OnListFragmentInteractionListener {
-        // TODO: Update argument type and name
         void onListFragmentInteraction(OrdenProducto item);
-
         void onRemoveClicked(OrdenProducto item, int index);
+        void onEditClicked(OrdenProducto item, int index);
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -96,7 +102,8 @@ public class MyPedidosItemRecyclerViewAdapter extends RecyclerView.Adapter<MyPed
         public final ImageView mImageView;
         public final TextView mContentView;
         public final TextView mDescriptionView;
-        public final Button mBtnView;
+        public final Button mBtnRemoveView;
+        public final Button mBtnEditView;
         public final TextView mCantidadView;
 
         public OrdenProducto mItem;
@@ -107,8 +114,9 @@ public class MyPedidosItemRecyclerViewAdapter extends RecyclerView.Adapter<MyPed
             mImageView = view.findViewById(R.id.producto_photo);
             mContentView = view.findViewById(R.id.producto_name);
             mDescriptionView = view.findViewById(R.id.descripcion_pedido);
-            mBtnView = view.findViewById(R.id.button_delete);
+            mBtnRemoveView = view.findViewById(R.id.button_delete);
             mCantidadView = view.findViewById(R.id.producto_cantidad);
+            mBtnEditView = view.findViewById(R.id.button_edit);
         }
 
         @Override

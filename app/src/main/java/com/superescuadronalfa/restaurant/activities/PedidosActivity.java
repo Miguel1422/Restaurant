@@ -28,12 +28,14 @@ import java.util.List;
 
 public class PedidosActivity extends AppCompatActivity {
     public static final String EXTRA_MESA = "com.superescuadronalfa.restaurant.ID_MESA";
+    public static final int EDITAR_PEDIDO = 77;
     private Mesa mesa;
     private Orden orden;
     private RecyclerView rv;
     private ProgressBar progressBar;
     private MyPedidosItemRecyclerViewAdapter adap;
     private FloatingActionButton fab;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,6 +64,27 @@ public class PedidosActivity extends AppCompatActivity {
         rv.setLayoutManager(llm);
         rv.setHasFixedSize(true);
 
+
+        rv.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                if (dy > 0 && fab.isShown()) {
+                    fab.hide();
+                } else if(dy < 0 && !fab.isShown()) {
+                    fab.show();
+                }
+            }
+
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    // fab.show();
+                }
+
+                super.onScrollStateChanged(recyclerView, newState);
+            }
+        });
+
         progressBar = findViewById(R.id.progressBarPedidos);
         if (b != null && (mesa = b.getParcelable(EXTRA_MESA)) != null) {
             this.mesa = mesa;
@@ -72,6 +95,19 @@ public class PedidosActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == ProductosActivity.AGREGAR_PRODUCTO) {
+            if (resultCode == RESULT_OK) {
+                new LoadOrdenMesa().execute(mesa);
+            }
+        } else if (requestCode == EDITAR_PEDIDO) {
+            if (resultCode == RESULT_OK) {
+                new LoadOrdenMesa().execute(mesa);
+            }
+        }
+    }
 
     private void removeListItem(int index, OrdenProducto item) {
         if (adap == null) return;
@@ -107,6 +143,13 @@ public class PedidosActivity extends AppCompatActivity {
                 builder.show();
             }
 
+            @Override
+            public void onEditClicked(OrdenProducto item, int index) {
+                Intent intent = new Intent(PedidosActivity.this, EditarPedidoActivity.class);
+                intent.putExtra(EditarPedidoActivity.EXTRA_PEDIDO, item);
+                startActivityForResult(intent, EDITAR_PEDIDO);
+            }
+
 
         });
 
@@ -114,16 +157,6 @@ public class PedidosActivity extends AppCompatActivity {
         rv.setAdapter(adap);
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == ProductosActivity.AGREGAR_PRODUCTO) {
-            if (resultCode == RESULT_OK) {
-                // Toast.makeText(this, "Se ha agregado producto", Toast.LENGTH_SHORT).show();
-                new LoadOrdenMesa().execute(mesa);
-            }
-        }
-    }
 
     private class EliminarPedido extends AsyncTask<OrdenProducto, Void, Boolean> {
 

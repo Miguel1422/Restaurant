@@ -1,8 +1,12 @@
 package com.superescuadronalfa.restaurant.dbEntities;
 
-import java.math.BigDecimal;
+import android.os.Parcel;
+import android.os.Parcelable;
 
-public class ProductoVariante {
+import java.math.BigDecimal;
+import java.util.Objects;
+
+public class ProductoVariante implements Parcelable{
     private int idProductoVariante;
     private TipoProducto tipoProducto;
     private String nombreVariante;
@@ -18,6 +22,38 @@ public class ProductoVariante {
         Variante = variante;
     }
 
+
+    protected ProductoVariante(Parcel in) {
+        idProductoVariante = in.readInt();
+        nombreVariante = in.readString();
+        descripcion = in.readString();
+        disponible = in.readByte() != 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(idProductoVariante);
+        dest.writeString(nombreVariante);
+        dest.writeString(descripcion);
+        dest.writeByte((byte) (disponible ? 1 : 0));
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public static final Creator<ProductoVariante> CREATOR = new Creator<ProductoVariante>() {
+        @Override
+        public ProductoVariante createFromParcel(Parcel in) {
+            return new ProductoVariante(in);
+        }
+
+        @Override
+        public ProductoVariante[] newArray(int size) {
+            return new ProductoVariante[size];
+        }
+    };
 
     public int getIdProductoVariante() {
         return idProductoVariante;
@@ -46,5 +82,20 @@ public class ProductoVariante {
 
     public BigDecimal getVariante() {
         return Variante;
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ProductoVariante that = (ProductoVariante) o;
+        return idProductoVariante == that.idProductoVariante;
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(idProductoVariante);
     }
 }

@@ -73,7 +73,8 @@ public class DBRestaurant {
             for (Object o : params) {
                 storedProcedure.setObject(index++, o);
             }
-            return storedProcedure.executeUpdate() > 0;
+            int ret = storedProcedure.executeUpdate();
+            return true;
         } catch (SQLException | NullPointerException e) {
             e.printStackTrace();
         } catch (Exception e) {

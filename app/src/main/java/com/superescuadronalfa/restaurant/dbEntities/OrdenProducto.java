@@ -18,6 +18,43 @@ public class OrdenProducto implements Parcelable {
     private String status;
     private List<ProductoVariante> variantesDeLaOrden;
 
+    public OrdenProducto(int idOrdenProducto, Orden ordenProducto, TipoProducto tipoProducto, BigDecimal precio, int cantidad, String comentarios, String status) {
+        this.orden = ordenProducto;
+        this.idOrdenProducto = idOrdenProducto;
+        this.tipoProducto = tipoProducto;
+        this.precio = precio;
+        this.cantidad = cantidad;
+        this.comentarios = comentarios;
+        this.status = status;
+    }
+
+
+    protected OrdenProducto(Parcel in) {
+        idOrdenProducto = in.readInt();
+        orden = in.readParcelable(Orden.class.getClassLoader());
+        tipoProducto = in.readParcelable(TipoProducto.class.getClassLoader());
+        cantidad = in.readInt();
+        comentarios = in.readString();
+        status = in.readString();
+        variantesDeLaOrden = in.createTypedArrayList(ProductoVariante.CREATOR);
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(idOrdenProducto);
+        dest.writeParcelable(orden, flags);
+        dest.writeParcelable(tipoProducto, flags);
+        dest.writeInt(cantidad);
+        dest.writeString(comentarios);
+        dest.writeString(status);
+        dest.writeTypedList(variantesDeLaOrden);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
     public static final Creator<OrdenProducto> CREATOR = new Creator<OrdenProducto>() {
         @Override
         public OrdenProducto createFromParcel(Parcel in) {
@@ -29,39 +66,6 @@ public class OrdenProducto implements Parcelable {
             return new OrdenProducto[size];
         }
     };
-
-
-    public OrdenProducto(int idOrdenProducto, Orden ordenProducto, TipoProducto tipoProducto, BigDecimal precio, int cantidad, String comentarios, String status) {
-        this.orden = ordenProducto;
-        this.idOrdenProducto = idOrdenProducto;
-        this.tipoProducto = tipoProducto;
-        this.precio = precio;
-        this.cantidad = cantidad;
-        this.comentarios = comentarios;
-        this.status = status;
-    }
-
-    protected OrdenProducto(Parcel in) {
-        idOrdenProducto = in.readInt();
-        orden = in.readParcelable(Orden.class.getClassLoader());
-        cantidad = in.readInt();
-        comentarios = in.readString();
-        status = in.readString();
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(idOrdenProducto);
-        dest.writeParcelable(orden, flags);
-        dest.writeInt(cantidad);
-        dest.writeString(comentarios);
-        dest.writeString(status);
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
 
     public int getIdOrdenProducto() {
         return idOrdenProducto;
