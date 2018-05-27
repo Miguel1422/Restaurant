@@ -17,7 +17,6 @@ import java.util.List;
 /**
  * {@link RecyclerView.Adapter} that can display a {@link OrdenProducto} and makes a call to the
  * specified {@link OnListFragmentInteractionListener}.
- * TODO: Replace the implementation with code for your data type.
  */
 public class MyPedidosItemRecyclerViewAdapter extends RecyclerView.Adapter<MyPedidosItemRecyclerViewAdapter.ViewHolder> {
 
@@ -52,6 +51,7 @@ public class MyPedidosItemRecyclerViewAdapter extends RecyclerView.Adapter<MyPed
 
         if (ac.getVariantesDeLaOrden().size() > 0) {
             // TODO agregar la lista de variantes
+            // Hecho en activity editar, Aqui es necesario?
         }
 
         holder.mView.setOnClickListener(new View.OnClickListener() {

@@ -1,5 +1,6 @@
 package com.superescuadronalfa.restaurant.dbEntities.control;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
@@ -7,6 +8,7 @@ import com.superescuadronalfa.restaurant.database.DBRestaurant;
 import com.superescuadronalfa.restaurant.dbEntities.CategoriaProducto;
 import com.superescuadronalfa.restaurant.dbEntities.Producto;
 import com.superescuadronalfa.restaurant.dbEntities.TipoProducto;
+import com.superescuadronalfa.restaurant.io.ImageUtils;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -17,6 +19,7 @@ public class ControlProductos implements IControlEntidad<Producto> {
     private static ControlProductos instance;
     private static String ID_PRODUCTO = "id_producto";
     private static String NOMBRE_PRODUCTO = "nombre_producto";
+    private static String IMAGE_DIRECTORY = "productos_cache";
 
     private ControlProductos() {
     }
@@ -72,6 +75,11 @@ public class ControlProductos implements IControlEntidad<Producto> {
         return new Producto(iDProducto, nombreProducto, categoriaProducto);
     }
 
+    public boolean eliminarCacheImagenes(Context context) {
+        ImageUtils utils = new ImageUtils(context, IMAGE_DIRECTORY);
+        return utils.deletePath();
+    }
+
     public List<TipoProducto> tiposDelProducto(Producto p) {
         String buscarTipos = "" +
                 "SELECT * FROM TipoProducto WHERE id_producto = ?\n" +
@@ -93,15 +101,22 @@ public class ControlProductos implements IControlEntidad<Producto> {
         return null;
     }
 
-    public Bitmap burcarImagen(Producto producto) {
-        // TODO Implementar cache
+    public Bitmap burcarImagen(Producto producto, Context context) {
         String findImage = "SELECT imagen FROM ProductoImagen WHERE id_imagen = ?";
-
+        Bitmap image = null;
         try {
+            ImageUtils utils = new ImageUtils(context, IMAGE_DIRECTORY);
+            image = utils.loadImageFromStorage("" + producto.getIdProducto());
+
+            if (image != null) return image;
+
             ResultSet result = DBRestaurant.ejecutaConsulta(findImage, producto.getIdProducto());
             if (!result.next()) return null;
             byte[] encodedImage = result.getBytes("imagen");
-            Bitmap image = BitmapFactory.decodeByteArray(encodedImage, 0, encodedImage.length);
+            image = BitmapFactory.decodeByteArray(encodedImage, 0, encodedImage.length);
+
+            utils.saveToInternalStorage(image, "" + producto.getIdProducto());
+
             return image;
         } catch (SQLException e) {
             e.printStackTrace();

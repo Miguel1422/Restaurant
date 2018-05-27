@@ -20,7 +20,7 @@
     <string name="nav_header_title">Android Studio</string>
     <string name="nav_header_subtitle">android.studio@android.com</string>
     <string name="nav_header_desc">Navigation header</string>
-    <string name="action_settings">Settings</string>
+    <string name="action_settings">Configuración</string>
     <string name="title_activity_pedidos">PedidosActivity</string>
     <string name="title_activity_productos">ProductosActivity</string>
     <string name="tab_text_1">Tab 1</string>
@@ -30,4 +30,5 @@
     <string name="btn_eliminar">Eliminar</string>
     <string name="tv_vari">Variantes</string>
     <string name="button_edit">Editar</string>
+    <string name="delete_cache">Actualizar Imagenes</string>
 </resources>

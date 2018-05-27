@@ -190,6 +190,7 @@ public class PedidosActivity extends AppCompatActivity {
             Mesa m = mesas[0];
             Orden nueva = new Orden(m);
             // TODO Poner la mesa como ocupada
+            // MEJOR hacerlo como stored Procedure
             return ControlOrdenes.getInstance().agregar(nueva);
         }
 

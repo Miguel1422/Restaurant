@@ -96,10 +96,32 @@ public class ProductosActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            deleteCahe();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @SuppressLint("StaticFieldLeak")
+    private void deleteCahe() {
+        new AsyncTask<Void, Void, Boolean>() {
+            @Override
+            protected Boolean doInBackground(Void... voids) {
+                return ControlProductos.getInstance().eliminarCacheImagenes(ProductosActivity.this);
+            }
+
+            @Override
+            protected void onPostExecute(Boolean aBoolean) {
+                super.onPostExecute(aBoolean);
+                if (aBoolean) {
+                    Toast.makeText(ProductosActivity.this, "Se han eliminado las imagenes", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(ProductosActivity.this, "No se han podido eliminar", Toast.LENGTH_LONG).show();
+                }
+                finish();
+            }
+        }.execute();
     }
 
     @SuppressLint("StaticFieldLeak")

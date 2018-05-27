@@ -15,7 +15,6 @@ import java.util.List;
 /**
  * {@link RecyclerView.Adapter} that can display a {@link Producto} and makes a call to the
  * specified {@link OnListFragmentInteractionListener}.
- * TODO: Replace the implementation with code for your data type.
  */
 public class MyProductoItemRecyclerViewAdapter extends RecyclerView.Adapter<MyProductoItemRecyclerViewAdapter.ViewHolder> {
 
@@ -58,7 +57,6 @@ public class MyProductoItemRecyclerViewAdapter extends RecyclerView.Adapter<MyPr
     }
 
     public interface OnListFragmentInteractionListener {
-        // TODO: Update argument type and name
         void onListFragmentInteraction(Producto item);
     }
 

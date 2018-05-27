@@ -1,5 +1,6 @@
 package com.superescuadronalfa.restaurant.activities;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -35,6 +36,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     public static final String EXTRA_TRABAJADOR = "com.superescuadronalfa.restaurant.ID_TRABAJADOR";
+    public static Context CONTEXT;
 
 
     private NavigationView navigationView;
@@ -84,6 +86,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         UserLoggedTask task = new UserLoggedTask(t);
         task.execute();
+        CONTEXT = getApplicationContext();
     }
 
     protected void onSaveInstanceState(Bundle bundle) {

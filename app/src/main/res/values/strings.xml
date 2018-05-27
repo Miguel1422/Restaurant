@@ -29,4 +29,5 @@
     <string name="btn_eliminar">Delete</string>
     <string name="tv_vari">Variants</string>
     <string name="button_edit">Edit</string>
+    <string name="delete_cache">Update Images</string>
 </resources>

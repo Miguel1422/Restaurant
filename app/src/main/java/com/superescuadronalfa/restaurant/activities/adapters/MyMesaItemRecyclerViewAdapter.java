@@ -16,7 +16,6 @@ import java.util.List;
 /**
  * {@link RecyclerView.Adapter} that can display a {@link Mesa} and makes a call to the
  * specified {@link OnListFragmentInteractionListener}.
- * TODO: Replace the implementation with code for your data type.
  */
 public class MyMesaItemRecyclerViewAdapter extends RecyclerView.Adapter<MyMesaItemRecyclerViewAdapter.ViewHolder> {
 
@@ -86,7 +85,6 @@ public class MyMesaItemRecyclerViewAdapter extends RecyclerView.Adapter<MyMesaIt
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnListFragmentInteractionListener {
-        // TODO: Update argument type and name
         void onListFragmentInteraction(Mesa item);
 
         void onListImageClicked(Mesa mItem);

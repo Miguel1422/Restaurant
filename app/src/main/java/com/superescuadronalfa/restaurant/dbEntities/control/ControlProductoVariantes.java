@@ -70,7 +70,7 @@ public class ControlProductoVariantes implements IControlEntidad<ProductoVariant
             int id = Integer.parseInt(st2.nextToken().trim());
             String nombre = st2.nextToken().trim();
             BigDecimal precio = new BigDecimal(st2.nextToken().trim());
-            listvariantes.add(new ProductoVariante(id, nombre, "", true, precio));
+            listvariantes.add(new ProductoVariante(id, nombre, "TODO agregar descripcion aqui", true, precio));
             // TODO agregar descripcion
         }
         return listvariantes;

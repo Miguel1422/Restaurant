@@ -6,21 +6,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.EditText;
 
 import com.superescuadronalfa.restaurant.R;
-import com.superescuadronalfa.restaurant.dbEntities.Producto;
 import com.superescuadronalfa.restaurant.dbEntities.ProductoVariante;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * {@link RecyclerView.Adapter} that can display a {@link ProductoVariante} and makes a call to the
  * specified {@link OnListFragmentInteractionListener}.
- * TODO: Replace the implementation with code for your data type.
  */
 public class MyVairanteItemRecyclerViewAdapter extends RecyclerView.Adapter<MyVairanteItemRecyclerViewAdapter.ViewHolder> {
 
@@ -85,7 +81,7 @@ public class MyVairanteItemRecyclerViewAdapter extends RecyclerView.Adapter<MyVa
         public ViewHolder(View view) {
             super(view);
             mView = view;
-            mcheckBoxView = (CheckBox) view.findViewById(R.id.checkBox);
+            mcheckBoxView = view.findViewById(R.id.checkBox);
         }
 
         @Override
@@ -95,7 +91,6 @@ public class MyVairanteItemRecyclerViewAdapter extends RecyclerView.Adapter<MyVa
     }
 
     public interface OnListFragmentInteractionListener {
-        // TODO: Update argument type and name
         void onListFragmentInteraction(ProductoVariante item);
     }
 }
