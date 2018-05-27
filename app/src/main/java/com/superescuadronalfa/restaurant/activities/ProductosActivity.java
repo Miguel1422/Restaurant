@@ -174,6 +174,7 @@ public class ProductosActivity extends AppCompatActivity {
                 if (aBoolean) {
                     Toast.makeText(ProductosActivity.this, "Se ha agregado el pedido", Toast.LENGTH_SHORT).show();
                     setResult(RESULT_OK/*, Intent*/);
+                    // TODO llevar a editar el pedido
                 } else {
                     Toast.makeText(ProductosActivity.this, "Error comprueba tu conexion", Toast.LENGTH_LONG).show();
                 }

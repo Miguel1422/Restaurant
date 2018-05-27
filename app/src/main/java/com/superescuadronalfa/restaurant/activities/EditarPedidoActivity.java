@@ -142,7 +142,6 @@ public class EditarPedidoActivity extends AppCompatActivity {
                     @Override
                     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                         loadVariantes(((TipoProducto) parent.getItemAtPosition(position)));
-                        Toast.makeText(getApplicationContext(), "" + parent.getItemAtPosition(position), Toast.LENGTH_SHORT).show();
                     }
 
                     @Override

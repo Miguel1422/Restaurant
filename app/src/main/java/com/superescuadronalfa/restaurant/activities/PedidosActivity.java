@@ -70,7 +70,7 @@ public class PedidosActivity extends AppCompatActivity {
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 if (dy > 0 && fab.isShown()) {
                     fab.hide();
-                } else if(dy < 0 && !fab.isShown()) {
+                } else if (dy < 0 && !fab.isShown()) {
                     fab.show();
                 }
             }
@@ -83,6 +83,7 @@ public class PedidosActivity extends AppCompatActivity {
 
                 super.onScrollStateChanged(recyclerView, newState);
             }
+
         });
 
         progressBar = findViewById(R.id.progressBarPedidos);
@@ -170,6 +171,11 @@ public class PedidosActivity extends AppCompatActivity {
             super.onPostExecute(aBoolean);
             if (aBoolean) {
                 Toast.makeText(PedidosActivity.this, "Se ha eliminado el pedido", Toast.LENGTH_SHORT).show();
+
+                boolean canScroll = rv.canScrollVertically(-1) || rv.canScrollVertically(1) || rv.canScrollVertically(-1);
+                if (!canScroll && !fab.isShown()) {
+                    fab.show();
+                }
             } else {
                 Toast.makeText(PedidosActivity.this, "Error comprueba tu conexion", Toast.LENGTH_LONG).show();
             }

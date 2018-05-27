@@ -130,7 +130,7 @@ public class ControlOrdenProducto implements IControlEntidad<OrdenProducto> {
 
             return lista;
         } catch (SQLException e) {
-
+            e.printStackTrace();
         } finally {
             DBRestaurant.close();
         }
