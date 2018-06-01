@@ -106,7 +106,7 @@ public class ControlProductos implements IControlEntidad<Producto> {
         Bitmap image = null;
         try {
             ImageUtils utils = new ImageUtils(context, IMAGE_DIRECTORY);
-            image = utils.loadImageFromStorage("" + producto.getIdProducto());
+            image = utils.loadImageFromStorage(producto.getIdProducto() + ".png");
 
             if (image != null) return image;
 
@@ -115,7 +115,7 @@ public class ControlProductos implements IControlEntidad<Producto> {
             byte[] encodedImage = result.getBytes("imagen");
             image = BitmapFactory.decodeByteArray(encodedImage, 0, encodedImage.length);
 
-            utils.saveToInternalStorage(image, "" + producto.getIdProducto());
+            utils.saveToInternalStorage(image, producto.getIdProducto() + ".png");
 
             return image;
         } catch (SQLException e) {
