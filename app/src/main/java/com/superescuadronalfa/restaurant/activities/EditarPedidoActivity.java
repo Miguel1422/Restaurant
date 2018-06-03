@@ -1,23 +1,18 @@
 package com.superescuadronalfa.restaurant.activities;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
-import android.database.DataSetObserver;
 import android.os.AsyncTask;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
-import android.widget.SpinnerAdapter;
 import android.widget.Toast;
 
 import com.superescuadronalfa.restaurant.R;
@@ -69,7 +64,7 @@ public class EditarPedidoActivity extends AppCompatActivity {
 
     @SuppressLint("StaticFieldLeak")
     public void btnAceptarClick(View v) {
-
+        if (progressBar.getVisibility() == View.VISIBLE) return;
         MyVairanteItemRecyclerViewAdapter adapter = (MyVairanteItemRecyclerViewAdapter) listVariantes.getAdapter();
 
         final OrdenProducto nuevo =

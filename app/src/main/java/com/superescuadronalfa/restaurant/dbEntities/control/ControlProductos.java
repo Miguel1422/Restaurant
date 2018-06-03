@@ -10,6 +10,10 @@ import com.superescuadronalfa.restaurant.dbEntities.Producto;
 import com.superescuadronalfa.restaurant.dbEntities.TipoProducto;
 import com.superescuadronalfa.restaurant.io.ImageUtils;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -68,10 +72,23 @@ public class ControlProductos implements IControlEntidad<Producto> {
     }
 
     @Override
+    public List<Producto> getListaFromJSON(JSONArray result) {
+        return null;
+    }
+
+    @Override
     public Producto fromResultSet(ResultSet result) throws SQLException {
         int iDProducto = result.getInt(ID_PRODUCTO);
         String nombreProducto = result.getString(NOMBRE_PRODUCTO);
         CategoriaProducto categoriaProducto = ControlCategorias.getInstance().fromResultSet(result);
+        return new Producto(iDProducto, nombreProducto, categoriaProducto);
+    }
+
+    @Override
+    public Producto fromJSON(JSONObject result) throws JSONException {
+        int iDProducto = result.getInt(ID_PRODUCTO);
+        String nombreProducto = result.getString(NOMBRE_PRODUCTO);
+        CategoriaProducto categoriaProducto = ControlCategorias.getInstance().fromJSON(result);
         return new Producto(iDProducto, nombreProducto, categoriaProducto);
     }
 

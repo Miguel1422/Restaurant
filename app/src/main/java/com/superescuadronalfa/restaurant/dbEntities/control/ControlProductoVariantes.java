@@ -2,6 +2,10 @@ package com.superescuadronalfa.restaurant.dbEntities.control;
 
 import com.superescuadronalfa.restaurant.dbEntities.ProductoVariante;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -46,12 +50,27 @@ public class ControlProductoVariantes implements IControlEntidad<ProductoVariant
     }
 
     @Override
+    public List<ProductoVariante> getListaFromJSON(JSONArray result) {
+        return null;
+    }
+
+    @Override
     public ProductoVariante fromResultSet(ResultSet result) throws SQLException {
         int id = result.getInt(ID_PRODUCTO_VARIANTE);
         String nombre = result.getString(NOMBRE_VARIANTE);
         String descripcion = result.getString(DESCRIPCION);
         boolean disponible = result.getBoolean(DISPONIBLE);
         BigDecimal precio = result.getBigDecimal(PRECIO_VARIANTE);
+        return new ProductoVariante(id, nombre, descripcion, disponible, precio);
+    }
+
+    @Override
+    public ProductoVariante fromJSON(JSONObject result) throws JSONException {
+        int id = result.getInt(ID_PRODUCTO_VARIANTE);
+        String nombre = result.getString(NOMBRE_VARIANTE);
+        String descripcion = result.getString(DESCRIPCION);
+        boolean disponible = result.getBoolean(DISPONIBLE);
+        BigDecimal precio = new BigDecimal(result.getString(PRECIO_VARIANTE));
         return new ProductoVariante(id, nombre, descripcion, disponible, precio);
     }
 
@@ -62,6 +81,23 @@ public class ControlProductoVariantes implements IControlEntidad<ProductoVariant
     public List<ProductoVariante> fromResultSetList(ResultSet result) throws SQLException {
         String variantes = result.getString("variantes");
         if (variantes == null) return new ArrayList<>();
+        StringTokenizer st = new StringTokenizer(variantes, "|");
+
+        ArrayList<ProductoVariante> listvariantes = new ArrayList<>();
+        while (st.hasMoreTokens()) {
+            StringTokenizer st2 = new StringTokenizer(st.nextToken(), ",");
+            int id = Integer.parseInt(st2.nextToken().trim());
+            String nombre = st2.nextToken().trim();
+            BigDecimal precio = new BigDecimal(st2.nextToken().trim());
+            listvariantes.add(new ProductoVariante(id, nombre, "TODO agregar descripcion aqui", true, precio));
+            // TODO agregar descripcion
+        }
+        return listvariantes;
+    }
+
+    public List<ProductoVariante> fromJSONList(JSONObject result) throws JSONException {
+        String variantes = result.getString("variantes");
+        if (variantes == null || variantes.equals("null")) return new ArrayList<>();
         StringTokenizer st = new StringTokenizer(variantes, "|");
 
         ArrayList<ProductoVariante> listvariantes = new ArrayList<>();

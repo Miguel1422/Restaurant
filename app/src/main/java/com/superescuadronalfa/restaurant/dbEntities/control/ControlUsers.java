@@ -4,6 +4,10 @@ import com.superescuadronalfa.restaurant.database.DBRestaurant;
 import com.superescuadronalfa.restaurant.dbEntities.Trabajador;
 import com.superescuadronalfa.restaurant.dbEntities.User;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -43,12 +47,27 @@ public class ControlUsers implements IControlEntidad<User> {
     }
 
     @Override
+    public List<User> getListaFromJSON(JSONArray result) {
+        return null;
+    }
+
+    @Override
     public User fromResultSet(ResultSet result) throws SQLException {
         String user = result.getString("username");
         byte[] hash = result.getBytes("hash");
         byte[] salt = result.getBytes("salt");
         int idTrabajador = result.getInt("id_trabajador");
         User u = new User(idTrabajador, user.toString(), hash, salt);
+        return u;
+    }
+
+    @Override
+    public User fromJSON(JSONObject result) throws JSONException {
+        String user = result.getString("username");
+        String hash = result.getString("hash");
+        String salt = result.getString("salt");
+        int idTrabajador = result.getInt("id_trabajador");
+        User u = new User(idTrabajador, user, hash.getBytes(), salt.getBytes());
         return u;
     }
 

@@ -32,12 +32,26 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
 import com.superescuadronalfa.restaurant.activities.MainActivity;
+import com.superescuadronalfa.restaurant.app.AppController;
 import com.superescuadronalfa.restaurant.dbEntities.Trabajador;
+import com.superescuadronalfa.restaurant.dbEntities.User;
+import com.superescuadronalfa.restaurant.dbEntities.control.ControlTrabajadores;
+import com.superescuadronalfa.restaurant.dbEntities.control.ControlUsers;
 import com.superescuadronalfa.restaurant.dbEntities.helpers.LoginManager;
+import com.superescuadronalfa.restaurant.helper.SessionManager;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -45,7 +59,7 @@ import static android.Manifest.permission.READ_CONTACTS;
  * A login screen that offers login via email/password.
  */
 public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
-
+    private static final String TAG = LoginActivity.class.getSimpleName();
     /**
      * Id to identity READ_CONTACTS permission request.
      */
@@ -62,10 +76,16 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
+    private SessionManager session;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+
+
         setContentView(R.layout.activity_login);
         // Set up the login form.
         mEmailView = findViewById(R.id.email);
@@ -94,7 +114,69 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
 
+        session = new SessionManager(getApplicationContext());
+        if (!AppConfig.USE_CONNECTOR && session.isLoggedIn()) {
+            // User is already logged in. Take him to main activity
+            loginByStoredKey();
+        }
 
+    }
+
+
+    private void loginByStoredKey() {
+        showProgress(true);
+        String tag_string_req = "req_login";
+        String loginUrl = AppConfig.URL_LOGIN;
+        StringRequest strReq = new StringRequest(Request.Method.POST, loginUrl, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                Log.d(TAG, "Login Response: " + response.toString());
+                try {
+                    JSONObject jObj = new JSONObject(response);
+                    boolean error = jObj.getBoolean("error");
+
+                    // Check for error node in json
+                    if (!error) {
+                        JSONObject user = jObj.getJSONObject("user");
+                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                        User usuario = ControlUsers.getInstance().fromJSON(user);
+                        Trabajador t = ControlTrabajadores.getInstance().fromJSON(user);
+                        intent.putExtra(MainActivity.EXTRA_TRABAJADOR, t);
+
+
+                        startActivity(intent);
+                        finish();
+                    } else {
+                        // Error in login. Get the error message
+                        String errorMsg = jObj.getString("error_msg");
+                        Toast.makeText(getApplicationContext(), errorMsg, Toast.LENGTH_LONG).show();
+                    }
+                } catch (JSONException e) {
+                    // JSON error
+                    e.printStackTrace();
+                    Toast.makeText(getApplicationContext(), "Json error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                } finally {
+                    showProgress(false);
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e(TAG, "Login Error: " + error.getMessage());
+                Toast.makeText(getApplicationContext(),
+                        error.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        }) {
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("api_key", session.getApiKey());
+                return params;
+            }
+        };
+
+        // Adding request to request queue
+        AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
     }
 
     private void populateAutoComplete() {
@@ -188,9 +270,81 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            mAuthTask = new UserLoginTask(email, password);
-            mAuthTask.execute((Void) null);
+            if (AppConfig.USE_CONNECTOR) {
+                mAuthTask = new UserLoginTask(email, password);
+                mAuthTask.execute((Void) null);
+            } else {
+
+                loginByUserAndPass(email, password);
+            }
+
         }
+    }
+
+    private void loginByUserAndPass(final String username, final String pass) {
+        showProgress(true);
+        String tag_string_req = "req_login";
+        String loginUrl = AppConfig.URL_LOGIN;
+        StringRequest strReq = new StringRequest(Request.Method.POST, loginUrl, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                Log.d(TAG, "Login Response: " + response.toString());
+                try {
+                    JSONObject jObj = new JSONObject(response);
+                    boolean error = jObj.getBoolean("error");
+
+                    // Check for error node in json
+                    if (!error) {
+                        JSONObject user = jObj.getJSONObject("user");
+                        String nombre = user.getString("nombre");
+                        String apellidos = user.getString("nombre");
+                        String apiKey = user.getString("api_key");
+                        session.login(apiKey);
+
+                        int puesto = user.getInt("id_puesto");
+                        int idTrabajador = user.getInt("id_trabajador");
+
+                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+
+                        Trabajador t = new Trabajador(nombre, apellidos, null, null, null, puesto);
+                        t.setIdTrabajador(idTrabajador);
+                        intent.putExtra(MainActivity.EXTRA_TRABAJADOR, t);
+
+
+                        startActivity(intent);
+                        finish();
+                    } else {
+                        // Error in login. Get the error message
+                        String errorMsg = jObj.getString("error_msg");
+                        Toast.makeText(getApplicationContext(), errorMsg, Toast.LENGTH_LONG).show();
+                    }
+                } catch (JSONException e) {
+                    // JSON error
+                    e.printStackTrace();
+                    Toast.makeText(getApplicationContext(), "Json error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                } finally {
+                    showProgress(false);
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e(TAG, "Login Error: " + error.getMessage());
+                Toast.makeText(getApplicationContext(),
+                        error.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        }) {
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("username", username);
+                params.put("password", pass);
+                return params;
+            }
+        };
+
+        // Adding request to request queue
+        AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
     }
 
     private boolean isUserValid(String email) {
@@ -313,8 +467,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         @Override
         protected Trabajador doInBackground(Void... params) {
-            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-            StrictMode.setThreadPolicy(policy);
+
 
             // TODO cambiar esto a estados (Contrasena incorrecta, usuario no valido, etc)
             trabajador = LoginManager.Login(username, pass);

@@ -5,6 +5,10 @@ import com.superescuadronalfa.restaurant.dbEntities.Producto;
 import com.superescuadronalfa.restaurant.dbEntities.ProductoVariante;
 import com.superescuadronalfa.restaurant.dbEntities.TipoProducto;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -46,6 +50,11 @@ public class ControlTipoProducto implements IControlEntidad<TipoProducto> {
         return null;
     }
 
+    @Override
+    public List<TipoProducto> getListaFromJSON(JSONArray result) {
+        return null;
+    }
+
     public List<ProductoVariante> getVariantes(TipoProducto tipoProducto) {
         String obtenerVariantes = "" +
                 "SELECT * FROM ProductoVariante\n" +
@@ -74,6 +83,14 @@ public class ControlTipoProducto implements IControlEntidad<TipoProducto> {
         int idTipo = result.getInt(ID_TIPO);
         String nombreTipo = result.getString(NOMBRE_TIPO);
         BigDecimal precio = result.getBigDecimal(PRECIO_TIPO);
+        return new TipoProducto(idTipo, nombreTipo, precio);
+    }
+
+    @Override
+    public TipoProducto fromJSON(JSONObject result) throws JSONException {
+        int idTipo = result.getInt(ID_TIPO);
+        String nombreTipo = result.getString(NOMBRE_TIPO);
+        BigDecimal precio = new BigDecimal(result.getString(PRECIO_TIPO));
         return new TipoProducto(idTipo, nombreTipo, precio);
     }
 

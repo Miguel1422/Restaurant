@@ -4,7 +4,7 @@ import android.graphics.Bitmap;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.superescuadronalfa.restaurant.activities.MainActivity;
+import com.superescuadronalfa.restaurant.app.AppController;
 import com.superescuadronalfa.restaurant.dbEntities.control.ControlProductos;
 
 import java.util.List;
@@ -98,7 +98,7 @@ public class Producto implements Parcelable {
 
     private void loadImage() {
 
-        image = ControlProductos.getInstance().burcarImagen(this, MainActivity.CONTEXT);
+        image = ControlProductos.getInstance().burcarImagen(this, AppController.getInstance().getApplicationContext());
     }
 
     public Bitmap getImage() {

@@ -1,9 +1,9 @@
 package com.superescuadronalfa.restaurant.activities;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
@@ -16,6 +16,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Base64;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -24,24 +26,38 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.superescuadronalfa.restaurant.AppConfig;
 import com.superescuadronalfa.restaurant.LoginActivity;
 import com.superescuadronalfa.restaurant.R;
 import com.superescuadronalfa.restaurant.activities.adapters.MyMesaItemRecyclerViewAdapter;
+import com.superescuadronalfa.restaurant.app.AppController;
 import com.superescuadronalfa.restaurant.dbEntities.Mesa;
 import com.superescuadronalfa.restaurant.dbEntities.Trabajador;
 import com.superescuadronalfa.restaurant.dbEntities.control.ControlMesas;
+import com.superescuadronalfa.restaurant.helper.SessionManager;
+import com.superescuadronalfa.restaurant.io.ImageUtils;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     public static final String EXTRA_TRABAJADOR = "com.superescuadronalfa.restaurant.ID_TRABAJADOR";
-    public static Context CONTEXT;
 
-
+    private static final String TAG = MainActivity.class.getSimpleName();
     private NavigationView navigationView;
     private RecyclerView rv;
     private ProgressBar progressBar;
+    private ImageView imageView;
+    private Trabajador trabajador;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,7 +83,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Toast.makeText(getApplicationContext(), "No se tiene mesero, ERROR", Toast.LENGTH_LONG).show();
             return;
         }
-        Trabajador t = (Trabajador) extras.get(EXTRA_TRABAJADOR);
+        trabajador = (Trabajador) extras.get(EXTRA_TRABAJADOR);
 
         progressBar = findViewById(R.id.progressBar);
 
@@ -82,11 +98,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         rv.setLayoutManager(llm);
         rv.setHasFixedSize(true);
 
-        initializeData();
 
-        UserLoggedTask task = new UserLoggedTask(t);
-        task.execute();
-        CONTEXT = getApplicationContext();
+        View header = navigationView.getHeaderView(0);
+        TextView navBarTitle = header.findViewById(R.id.nav_header_title);
+        navBarTitle.setText(trabajador.getNombre());
+
+        TextView navBarSubTitle = header.findViewById(R.id.nav_header_subtitle);
+        navBarSubTitle.setText(trabajador.getApellidos());
+
+        imageView = header.findViewById(R.id.nav_header_imageView);
+
+        if (AppConfig.USE_CONNECTOR) {
+            UserLoggedTask task = new UserLoggedTask(trabajador);
+            task.execute();
+        } else {
+            userLogged();
+        }
     }
 
     protected void onSaveInstanceState(Bundle bundle) {
@@ -125,8 +152,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         rv.setAdapter(adap);
     }
 
-    private void initializeData() {
-    }
 
     @Override
     public void onStart() {
@@ -192,6 +217,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else if (id == R.id.nav_send) {
 
         } else if (id == R.id.nav_exit) {
+            new SessionManager(this).logout();
             Intent login = new Intent(getApplicationContext(), LoginActivity.class);
             startActivity(login);
             finish();
@@ -200,6 +226,123 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    private void userLogged() {
+        String tag_string_req = "req_mesas";
+        String urlGetMesas = AppConfig.URL_GET_MESAS;
+        StringRequest strReq = new StringRequest(Request.Method.POST, urlGetMesas, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                Log.d(TAG, "Login Response: " + response.toString());
+                try {
+                    JSONObject jObj = new JSONObject(response);
+                    boolean error = jObj.getBoolean("error");
+
+                    // Check for error node in json
+                    if (!error) {
+                        List<Mesa> mesas = ControlMesas.getInstance().getListaFromJSON(jObj.getJSONArray("mesas"));
+                        initializeAdapter(mesas);
+                        loadImage(trabajador);
+                    } else {
+                        // Error  Get the error message
+                        String errorMsg = jObj.getString("error_msg");
+                        Toast.makeText(getApplicationContext(), errorMsg, Toast.LENGTH_LONG).show();
+                    }
+                } catch (JSONException e) {
+                    // JSON error
+                    e.printStackTrace();
+                    Toast.makeText(getApplicationContext(), "Json error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                } finally {
+                    progressBar.setVisibility(View.GONE);
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e(TAG, "Login Error: " + error.getMessage());
+                Toast.makeText(getApplicationContext(),
+                        error.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        }) {
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<>();
+                params.put("api_key", new SessionManager(MainActivity.this).getApiKey());
+                return params;
+            }
+        };
+
+        // Adding request to request queue
+        AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
+    }
+
+
+    private void loadImage(final Trabajador trabajador) {
+        String tag_string_req = "req_image";
+        String imageUrl = AppConfig.URL_GET_TRABAJADOR_IMAGE + "?id_trabajador=" + trabajador.getIdTrabajador();
+
+        final ImageUtils utils = new ImageUtils(MainActivity.this, "trabajadores");
+
+        Bitmap image = utils.loadImageFromStorage("" + trabajador.getIdTrabajador());
+        if (image != null) {
+            setTrabajadorImage(image);
+            return;
+        }
+
+        StringRequest imageRequest = new StringRequest(Request.Method.POST, imageUrl, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                try {
+                    JSONObject jObj = new JSONObject(response);
+                    boolean error = jObj.getBoolean("error");
+
+                    // Check for error node in json
+                    if (!error) {
+                        String image = jObj.getString("image");
+                        byte[] encodedImage = Base64.decode(image, Base64.DEFAULT);
+                        Bitmap img = BitmapFactory.decodeByteArray(encodedImage, 0, encodedImage.length);
+                        setTrabajadorImage(img);
+                        utils.saveToInternalStorage(img, trabajador.getIdTrabajador() + "");
+                    } else {
+                        // Error  Get the error message
+                        String errorMsg = jObj.getString("error_msg");
+                        Toast.makeText(getApplicationContext(), errorMsg, Toast.LENGTH_LONG).show();
+                    }
+                } catch (JSONException e) {
+                    // JSON error
+                    e.printStackTrace();
+                    Toast.makeText(getApplicationContext(), "Json error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                } finally {
+                    progressBar.setVisibility(View.GONE);
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e(TAG, "Login Error: " + error.getMessage());
+                Toast.makeText(getApplicationContext(),
+                        error.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        }) {
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<>();
+                params.put("api_key", new SessionManager(MainActivity.this).getApiKey());
+                return params;
+            }
+        };
+
+
+        // Adding request to request queue
+        AppController.getInstance().addToRequestQueue(imageRequest, tag_string_req);
+    }
+
+    private void setTrabajadorImage(Bitmap image) {
+        RoundedBitmapDrawable dr;
+        dr = RoundedBitmapDrawableFactory.create(getResources(), image);
+        dr.setCornerRadius(Math.max(image.getWidth(), image.getHeight()) / 2.0f);
+        imageView.setImageDrawable(dr);
     }
 
     private class UserLoggedTask extends AsyncTask<Void, Void, Boolean> {
@@ -214,38 +357,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         @Override
         protected Boolean doInBackground(Void... voids) {
-
-
             Resources res = getResources();
             Bitmap src = trabajador.getImage();
             dr = RoundedBitmapDrawableFactory.create(res, src);
             dr.setCornerRadius(Math.max(src.getWidth(), src.getHeight()) / 2.0f);
-
             mesas = ControlMesas.getInstance().getLista();
-
-
             return true;
         }
 
         @Override
         protected void onPostExecute(final Boolean success) {
             if (success) {
-                View header = navigationView.getHeaderView(0);
-                TextView navBarTitle = header.findViewById(R.id.nav_header_title);
-                navBarTitle.setText(trabajador.getNombre());
-
-                TextView navBarSubTitle = header.findViewById(R.id.nav_header_subtitle);
-                navBarSubTitle.setText(trabajador.getApellidos());
-
-                ImageView imageView = header.findViewById(R.id.nav_header_imageView);
-                // imageView.setImageBitmap(trabajador.getImage());
-
-                // Toast.makeText(MainActivity.this.getApplicationContext(), "Bien", Toast.LENGTH_SHORT).show();
                 imageView.setImageDrawable(dr);
-
-                for (Mesa m : mesas) {
-                    // Toast.makeText(MainActivity.this.getApplicationContext(), "Mesa " + m.getNombre() + " " + m.getEstadoMesa().getNombre(), Toast.LENGTH_SHORT).show();
-                }
                 initializeAdapter(mesas);
             } else
                 Toast.makeText(MainActivity.this.getApplicationContext(), "Error", Toast.LENGTH_SHORT).show();

@@ -15,19 +15,33 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.superescuadronalfa.restaurant.AppConfig;
 import com.superescuadronalfa.restaurant.R;
 import com.superescuadronalfa.restaurant.activities.adapters.MyPedidosItemRecyclerViewAdapter;
+import com.superescuadronalfa.restaurant.app.AppController;
 import com.superescuadronalfa.restaurant.dbEntities.Mesa;
 import com.superescuadronalfa.restaurant.dbEntities.Orden;
 import com.superescuadronalfa.restaurant.dbEntities.OrdenProducto;
 import com.superescuadronalfa.restaurant.dbEntities.ProductoVariante;
 import com.superescuadronalfa.restaurant.dbEntities.control.ControlOrdenProducto;
 import com.superescuadronalfa.restaurant.dbEntities.control.ControlOrdenes;
+import com.superescuadronalfa.restaurant.helper.SessionManager;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class PedidosActivity extends AppCompatActivity {
     public static final String EXTRA_MESA = "com.superescuadronalfa.restaurant.ID_MESA";
+    private static final String TAG = PedidosActivity.class.getSimpleName();
     public static final int EDITAR_PEDIDO = 77;
     private Mesa mesa;
     private Orden orden;
@@ -89,11 +103,176 @@ public class PedidosActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBarPedidos);
         if (b != null && (mesa = b.getParcelable(EXTRA_MESA)) != null) {
             this.mesa = mesa;
-            new LoadOrdenMesa().execute(mesa);
+            if (AppConfig.USE_CONNECTOR) {
+                new LoadOrdenMesa().execute(mesa);
+            } else {
+                loadOrdenMesa(mesa);
+            }
         } else {
             Log.d("Error", " No se tiene una mesa");
             finish();
         }
+    }
+
+    private void loadOrdenMesa(Mesa mesa) {
+        String tag_string_req = "req_pedidos";
+        String urlGetMesas = AppConfig.URL_GET_ORDEN + "?id_mesa=" + mesa.getIdMesa();
+        StringRequest strReq = new StringRequest(Request.Method.POST, urlGetMesas, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                Log.d(TAG, "Login Response: " + response.toString());
+                try {
+                    JSONObject jObj = new JSONObject(response);
+                    boolean error = jObj.getBoolean("error");
+
+                    // Check for error node in json
+                    if (!error) {
+                        JSONObject ordenJSON = jObj.getJSONObject("orden");
+                        Orden orden = ControlOrdenes.getInstance().fromJSON(ordenJSON);
+                        JSONArray array = ordenJSON.getJSONArray("pedidos");
+                        List<OrdenProducto> productos = ControlOrdenProducto.getInstance().getListaFromJSON(array, orden);
+                        initializeAdapter(productos);
+                        fab.setVisibility(View.VISIBLE);
+                        PedidosActivity.this.orden = orden;
+                    } else {
+                        if (jObj.opt("orden") != null) {
+                            crearOrdenDialog();
+                            return;
+                        }
+                        // Error  Get the error message
+                        String errorMsg = jObj.getString("error_msg");
+                        Toast.makeText(getApplicationContext(), "Error " + errorMsg, Toast.LENGTH_LONG).show();
+                    }
+                } catch (JSONException e) {
+                    // JSON error
+                    e.printStackTrace();
+                    Toast.makeText(getApplicationContext(), "Json error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                } finally {
+                    progressBar.setVisibility(View.GONE);
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e(TAG, "Login Error: " + error.getMessage());
+                Toast.makeText(getApplicationContext(),
+                        error.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        }) {
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<>();
+                params.put("api_key", new SessionManager(getApplicationContext()).getApiKey());
+                return params;
+            }
+        };
+
+        // Adding request to request queue
+        AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
+    }
+
+    private void crearOrden() {
+        String tag_string_req = "req_pedidos";
+        String urlGetMesas = AppConfig.URL_ADD_ORDEN + "?id_mesa=" + mesa.getIdMesa();
+        StringRequest strReq = new StringRequest(Request.Method.POST, urlGetMesas, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                Log.d(TAG, "Login Response: " + response.toString());
+                try {
+                    JSONObject jObj = new JSONObject(response);
+                    boolean error = jObj.getBoolean("error");
+
+                    // Check for error node in json
+                    if (!error) {
+                        JSONObject ordenJSON = jObj.getJSONObject("orden");
+                        PedidosActivity.this.orden = ControlOrdenes.getInstance().fromJSON(ordenJSON);
+                        JSONArray array = ordenJSON.getJSONArray("pedidos");
+                        Orden orden = ControlOrdenes.getInstance().fromJSON(ordenJSON);
+                        List<OrdenProducto> productos = ControlOrdenProducto.getInstance().getListaFromJSON(array, orden);
+                        initializeAdapter(productos);
+                        fab.setVisibility(View.VISIBLE);
+                    } else {
+                        if (jObj.opt("orden") != null) {
+                            crearOrdenDialog();
+                            return;
+                        }
+                        // Error  Get the error message
+                        String errorMsg = jObj.getString("error_msg");
+                        Toast.makeText(getApplicationContext(), "Error " + errorMsg, Toast.LENGTH_LONG).show();
+                    }
+                } catch (JSONException e) {
+                    // JSON error
+                    e.printStackTrace();
+                    Toast.makeText(getApplicationContext(), "Json error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                } finally {
+                    progressBar.setVisibility(View.GONE);
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e(TAG, "Login Error: " + error.getMessage());
+                Toast.makeText(getApplicationContext(),
+                        error.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        }) {
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<>();
+                params.put("api_key", new SessionManager(getApplicationContext()).getApiKey());
+                return params;
+            }
+        };
+
+        // Adding request to request queue
+        AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
+    }
+
+    private void eliminarPedido(OrdenProducto pedido) {
+        String tag_string_req = "req_pedidos";
+        String urlGetMesas = AppConfig.URL_DELETE_PEDIDO + "?id_orden_producto=" + pedido.getIdOrdenProducto();
+        StringRequest strReq = new StringRequest(Request.Method.POST, urlGetMesas, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                Log.d(TAG, "Login Response: " + response.toString());
+                try {
+                    JSONObject jObj = new JSONObject(response);
+                    boolean error = jObj.getBoolean("error");
+
+                    // Check for error node in json
+                    if (!error) {
+
+                    } else {
+                        String errorMsg = jObj.getString("error_msg");
+                        Toast.makeText(getApplicationContext(), "Error " + errorMsg, Toast.LENGTH_LONG).show();
+                        finish();
+                    }
+                } catch (JSONException e) {
+                    // JSON error
+                    e.printStackTrace();
+                    Toast.makeText(getApplicationContext(), "Json error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                } finally {
+                    progressBar.setVisibility(View.GONE);
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e(TAG, "Login Error: " + error.getMessage());
+                Toast.makeText(getApplicationContext(),
+                        error.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        }) {
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<>();
+                params.put("api_key", new SessionManager(getApplicationContext()).getApiKey());
+                return params;
+            }
+        };
+
+        // Adding request to request queue
+        AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
     }
 
     @Override
@@ -101,11 +280,17 @@ public class PedidosActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == ProductosActivity.AGREGAR_PRODUCTO) {
             if (resultCode == RESULT_OK) {
-                new LoadOrdenMesa().execute(mesa);
+                if (AppConfig.USE_CONNECTOR)
+                    new LoadOrdenMesa().execute(mesa);
+                else
+                    loadOrdenMesa(mesa);
             }
         } else if (requestCode == EDITAR_PEDIDO) {
             if (resultCode == RESULT_OK) {
-                new LoadOrdenMesa().execute(mesa);
+                if (AppConfig.USE_CONNECTOR)
+                    new LoadOrdenMesa().execute(mesa);
+                else
+                    loadOrdenMesa(mesa);
             }
         }
     }
@@ -113,7 +298,11 @@ public class PedidosActivity extends AppCompatActivity {
     private void removeListItem(int index, OrdenProducto item) {
         if (adap == null) return;
         adap.deleteItem(index);
-        new EliminarPedido().execute(item);
+        if (AppConfig.USE_CONNECTOR)
+            new EliminarPedido().execute(item);
+        else {
+            eliminarPedido(item);
+        }
     }
 
 
@@ -158,11 +347,42 @@ public class PedidosActivity extends AppCompatActivity {
         rv.setAdapter(adap);
     }
 
+    // Muestar un dialogo para preguntar si se desea crear una orden
+    private void crearOrdenDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(PedidosActivity.this);
+        builder.setTitle("No existe una orden ¿Crear?");
+        builder.setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (AppConfig.USE_CONNECTOR)
+                    new CrearOrden().execute(mesa);
+                else {
+                    crearOrden();
+                }
+            }
+        });
+        builder.setNegativeButton("Cancelar", null);
+
+        builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                finish();
+            }
+        });
+
+        try {
+            builder.show();
+        } catch (Exception e) {
+            Log.d("Error", "No se pudo crer la ventana");
+            finish();
+        }
+    }
 
     private class EliminarPedido extends AsyncTask<OrdenProducto, Void, Boolean> {
 
         @Override
         protected Boolean doInBackground(OrdenProducto... ordenProductos) {
+            if (!AppConfig.USE_CONNECTOR) throw new RuntimeException("Se debe usar el conector");
             return ControlOrdenProducto.getInstance().eliminar(ordenProductos[0]);
         }
 
@@ -170,14 +390,14 @@ public class PedidosActivity extends AppCompatActivity {
         protected void onPostExecute(Boolean aBoolean) {
             super.onPostExecute(aBoolean);
             if (aBoolean) {
-                Toast.makeText(PedidosActivity.this, "Se ha eliminado el pedido", Toast.LENGTH_SHORT).show();
+                Toast.makeText(PedidosActivity.this.getApplicationContext(), "Se ha eliminado el pedido", Toast.LENGTH_SHORT).show();
 
                 boolean canScroll = rv.canScrollVertically(-1) || rv.canScrollVertically(1) || rv.canScrollVertically(-1);
                 if (!canScroll && !fab.isShown()) {
                     fab.show();
                 }
             } else {
-                Toast.makeText(PedidosActivity.this, "Error comprueba tu conexion", Toast.LENGTH_LONG).show();
+                Toast.makeText(PedidosActivity.this.getApplicationContext(), "Error comprueba tu conexion", Toast.LENGTH_LONG).show();
             }
         }
     }
@@ -187,6 +407,7 @@ public class PedidosActivity extends AppCompatActivity {
 
         @Override
         protected Boolean doInBackground(Mesa... mesas) {
+            if (!AppConfig.USE_CONNECTOR) throw new RuntimeException("Se debe usar el conector");
             Mesa m = mesas[0];
             Orden nueva = new Orden(m);
             // TODO Poner la mesa como ocupada
@@ -215,6 +436,7 @@ public class PedidosActivity extends AppCompatActivity {
 
         @Override
         protected Integer doInBackground(Mesa... mesas) {
+            if (!AppConfig.USE_CONNECTOR) throw new RuntimeException("Se debe usar el conector");
             mesa = mesas[0];
             orden = ControlOrdenes.getInstance().fromMesa(mesa);
             if (orden == null) return ORDEN_NO_CREADA;
@@ -236,33 +458,18 @@ public class PedidosActivity extends AppCompatActivity {
                     fab.setVisibility(View.VISIBLE);
                     break;
                 case ORDEN_NO_CREADA:
-
-                    AlertDialog.Builder builder = new AlertDialog.Builder(PedidosActivity.this);
-                    builder.setTitle("No existe una orden ¿Crear?");
-                    builder.setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            new CrearOrden().execute(mesa);
-                        }
-                    });
-                    builder.setNegativeButton("Cancelar", null);
-
-                    builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                        @Override
-                        public void onDismiss(DialogInterface dialog) {
-                            finish();
-                        }
-                    });
-
-                    builder.show();
-
+                    crearOrdenDialog();
                     break;
                 case ERROR:
                     Toast.makeText(getApplicationContext(), "Erro", Toast.LENGTH_SHORT).show();
                     break;
             }
             progressBar.setVisibility(View.GONE);
+        }
 
+        @Override
+        protected void onCancelled(Integer integer) {
+            finish();
         }
     }
 

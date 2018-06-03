@@ -9,6 +9,10 @@ import com.superescuadronalfa.restaurant.dbEntities.Producto;
 import com.superescuadronalfa.restaurant.dbEntities.ProductoVariante;
 import com.superescuadronalfa.restaurant.dbEntities.TipoProducto;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -90,8 +94,46 @@ public class ControlOrdenProducto implements IControlEntidad<OrdenProducto> {
     }
 
     @Override
+    public List<OrdenProducto> getListaFromJSON(JSONArray result) {
+        return null;
+    }
+
+
+    public List<OrdenProducto> getListaFromJSON(JSONArray result, Orden orden) throws JSONException {
+        ArrayList<OrdenProducto> ordenes = new ArrayList<>();
+        for (int i = 0; i < result.length(); i++) {
+            JSONObject mesaJSON = result.getJSONObject(i);
+            OrdenProducto ac = fromJSON(mesaJSON, orden);
+            ordenes.add(ac);
+        }
+        return ordenes;
+    }
+
+    @Override
     public OrdenProducto fromResultSet(ResultSet result) {
         throw new RuntimeException("No implementado");
+    }
+
+    @Override
+    public OrdenProducto fromJSON(JSONObject result) {
+        return null;
+    }
+
+
+    public OrdenProducto fromJSON(JSONObject result, Orden orden) throws JSONException {
+        int idOrdenProducto = result.getInt("id_orden_producto");
+        TipoProducto tp = ControlTipoProducto.getInstance().fromJSON(result);
+
+        Producto p = ControlProductos.getInstance().fromJSON(result);
+        tp.setProducto(p);
+
+        BigDecimal precio = new BigDecimal(result.getString("precio"));
+        int cantidad = result.getInt("cantidad");
+        String comentarios = result.getString("comentarios");
+        String status = result.getString("status");
+        OrdenProducto op = new OrdenProducto(idOrdenProducto, orden, tp, precio, cantidad, comentarios, status);
+        op.setVariantesDeLaOrden(ControlProductoVariantes.getInstance().fromJSONList(result));
+        return op;
     }
 
     public OrdenProducto fromResultSet(ResultSet result, Orden orden) throws SQLException {

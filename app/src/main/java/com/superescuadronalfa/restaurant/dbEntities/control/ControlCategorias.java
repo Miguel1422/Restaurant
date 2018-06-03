@@ -2,6 +2,10 @@ package com.superescuadronalfa.restaurant.dbEntities.control;
 
 import com.superescuadronalfa.restaurant.dbEntities.CategoriaProducto;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -40,7 +44,19 @@ public class ControlCategorias implements IControlEntidad<CategoriaProducto> {
     }
 
     @Override
+    public List<CategoriaProducto> getListaFromJSON(JSONArray result) {
+        return null;
+    }
+
+    @Override
     public CategoriaProducto fromResultSet(ResultSet result) throws SQLException {
+        int idCategoria = result.getInt(ID_CATEGORIA);
+        String nombre = result.getString(NOMBRE_CATEGORIA);
+        return new CategoriaProducto(idCategoria, nombre);
+    }
+
+    @Override
+    public CategoriaProducto fromJSON(JSONObject result) throws JSONException {
         int idCategoria = result.getInt(ID_CATEGORIA);
         String nombre = result.getString(NOMBRE_CATEGORIA);
         return new CategoriaProducto(idCategoria, nombre);

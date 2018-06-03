@@ -2,6 +2,10 @@ package com.superescuadronalfa.restaurant.dbEntities.control;
 
 import com.superescuadronalfa.restaurant.dbEntities.EstadoMesa;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -40,9 +44,21 @@ public class ControlEstadoMesas implements IControlEntidad<EstadoMesa> {
     }
 
     @Override
+    public List<EstadoMesa> getListaFromJSON(JSONArray result) {
+        return null;
+    }
+
+    @Override
     public EstadoMesa fromResultSet(ResultSet result) throws SQLException {
         int idEstadoMesa = result.getInt(FIELD_ID_ESTADO_MESA);
-        String nombreE$stado = result.getString(FIELD_NOMBRE_ESTADO);
-        return new EstadoMesa(idEstadoMesa, nombreE$stado);
+        String nombreEstado = result.getString(FIELD_NOMBRE_ESTADO);
+        return new EstadoMesa(idEstadoMesa, nombreEstado);
+    }
+
+    @Override
+    public EstadoMesa fromJSON(JSONObject result) throws JSONException {
+        int idEstadoMesa = result.getInt(FIELD_ID_ESTADO_MESA);
+        String nombreEstado = result.getString(FIELD_NOMBRE_ESTADO);
+        return new EstadoMesa(idEstadoMesa, nombreEstado);
     }
 }

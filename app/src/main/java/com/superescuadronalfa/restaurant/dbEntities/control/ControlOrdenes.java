@@ -7,6 +7,10 @@ import com.superescuadronalfa.restaurant.dbEntities.Mesa;
 import com.superescuadronalfa.restaurant.dbEntities.Orden;
 import com.superescuadronalfa.restaurant.dbEntities.OrdenProducto;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -49,6 +53,11 @@ public class ControlOrdenes implements IControlEntidad<Orden> {
 
     @Override
     public List<Orden> getLista() {
+        return null;
+    }
+
+    @Override
+    public List<Orden> getListaFromJSON(JSONArray result) {
         return null;
     }
 
@@ -97,8 +106,15 @@ public class ControlOrdenes implements IControlEntidad<Orden> {
         throw new RuntimeException("COmprueba la cnexion a internet, no se pudoin cargar la orden");
     }
 
+
     @Override
     public Orden fromResultSet(ResultSet result) throws SQLException {
+        int idOrden = result.getInt("id_orden");
+        return new Orden(idOrden);
+    }
+
+    @Override
+    public Orden fromJSON(JSONObject result) throws JSONException {
         int idOrden = result.getInt("id_orden");
         return new Orden(idOrden);
     }

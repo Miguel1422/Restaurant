@@ -6,6 +6,10 @@ import android.graphics.BitmapFactory;
 import com.superescuadronalfa.restaurant.database.DBRestaurant;
 import com.superescuadronalfa.restaurant.dbEntities.Trabajador;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
@@ -43,6 +47,11 @@ public class ControlTrabajadores implements IControlEntidad<Trabajador> {
     }
 
     @Override
+    public List<Trabajador> getListaFromJSON(JSONArray result) {
+        return null;
+    }
+
+    @Override
     public Trabajador fromResultSet(ResultSet result) throws SQLException {
         int id_trabajador = result.getInt("id_trabajador");
         String nombre = result.getString("nombre");
@@ -53,6 +62,20 @@ public class ControlTrabajadores implements IControlEntidad<Trabajador> {
         int id_puesto = result.getInt("id_puesto");
 
 
+        Trabajador t = new Trabajador(nombre, apellidos, fecha_nacimiento, direccion, telefono, id_puesto);
+        t.setIdTrabajador(id_trabajador);
+        return t;
+    }
+
+    @Override
+    public Trabajador fromJSON(JSONObject result) throws JSONException {
+        int id_trabajador = result.getInt("id_trabajador");
+        String nombre = result.getString("nombre");
+        String apellidos = result.getString("apellidos");
+        Date fecha_nacimiento = new Date();
+        String direccion = result.getString("direccion");
+        String telefono = result.getString("telefono");
+        int id_puesto = result.getInt("id_puesto");
         Trabajador t = new Trabajador(nombre, apellidos, fecha_nacimiento, direccion, telefono, id_puesto);
         t.setIdTrabajador(id_trabajador);
         return t;

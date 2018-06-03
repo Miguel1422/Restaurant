@@ -4,6 +4,10 @@ import com.superescuadronalfa.restaurant.database.DBRestaurant;
 import com.superescuadronalfa.restaurant.dbEntities.EstadoMesa;
 import com.superescuadronalfa.restaurant.dbEntities.Mesa;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -66,7 +70,30 @@ public class ControlMesas implements IControlEntidad<Mesa> {
     }
 
     @Override
+    public List<Mesa> getListaFromJSON(JSONArray result) throws JSONException {
+        ArrayList<Mesa> mesas = new ArrayList<>();
+        for (int i = 0; i < result.length(); i++) {
+            JSONObject mesaJSON = result.getJSONObject(i);
+            Mesa ac = fromJSON(mesaJSON);
+            EstadoMesa em = ControlEstadoMesas.getInstance().fromJSON(mesaJSON);
+            ac.setEstadoMesa(em);
+            mesas.add(ac);
+        }
+        return mesas;
+    }
+
+
+    @Override
     public Mesa fromResultSet(ResultSet result) throws SQLException {
+        int idMesa = result.getInt(FIELD_ID_MESA);
+        int idEstado = result.getInt(FIELD_ID_ESTADO);
+        String nombre = result.getString(FIELD_NOMBRE_MESA);
+
+        return new Mesa(idMesa, idEstado, nombre);
+    }
+
+    @Override
+    public Mesa fromJSON(JSONObject result) throws JSONException {
         int idMesa = result.getInt(FIELD_ID_MESA);
         int idEstado = result.getInt(FIELD_ID_ESTADO);
         String nombre = result.getString(FIELD_NOMBRE_MESA);
