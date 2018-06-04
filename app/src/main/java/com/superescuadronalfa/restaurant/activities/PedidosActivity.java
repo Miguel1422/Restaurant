@@ -179,7 +179,7 @@ public class PedidosActivity extends AppCompatActivity {
             public void onErrorResponse(VolleyError error) {
                 Log.e(TAG, "Error: " + error.getMessage());
                 Toast.makeText(getApplicationContext(), "Error no se pudo cargar el contenido comprueba tu conexion " + (error.getMessage() != null ? error.getMessage() : error.toString()), Toast.LENGTH_LONG).show();
-                finish();
+                finish(); 
             }
         }) {
             @Override

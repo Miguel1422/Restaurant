@@ -281,6 +281,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             public void onErrorResponse(VolleyError error) {
                 Log.e(TAG, "263 Login Error: " + error.getMessage());
                 Toast.makeText(getApplicationContext(), "Error no se cargo el contenido comprueba tu conexion " + (error.getMessage() != null ? error.getMessage() : error.toString()), Toast.LENGTH_LONG).show();
+                progressBar.setVisibility(View.GONE);
             }
         }) {
             @Override
