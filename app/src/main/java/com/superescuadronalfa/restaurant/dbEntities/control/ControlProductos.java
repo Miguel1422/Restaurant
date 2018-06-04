@@ -12,7 +12,7 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
-import com.superescuadronalfa.restaurant.AppConfig;
+import com.superescuadronalfa.restaurant.app.AppConfig;
 import com.superescuadronalfa.restaurant.app.AppController;
 import com.superescuadronalfa.restaurant.database.DBRestaurant;
 import com.superescuadronalfa.restaurant.dbEntities.CategoriaProducto;

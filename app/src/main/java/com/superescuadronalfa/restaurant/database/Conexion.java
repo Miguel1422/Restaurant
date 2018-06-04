@@ -2,7 +2,7 @@ package com.superescuadronalfa.restaurant.database;
 
 import android.util.Log;
 
-import com.superescuadronalfa.restaurant.AppConfig;
+import com.superescuadronalfa.restaurant.app.AppConfig;
 
 import net.sourceforge.jtds.jdbc.Driver;
 

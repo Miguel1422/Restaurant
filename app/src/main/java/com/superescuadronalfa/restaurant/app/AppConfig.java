@@ -1,4 +1,4 @@
-package com.superescuadronalfa.restaurant;
+package com.superescuadronalfa.restaurant.app;
 
 public class AppConfig {
 

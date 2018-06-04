@@ -1,4 +1,4 @@
-package com.superescuadronalfa.restaurant;
+package com.superescuadronalfa.restaurant.activities;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -36,7 +36,8 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
-import com.superescuadronalfa.restaurant.activities.MainActivity;
+import com.superescuadronalfa.restaurant.R;
+import com.superescuadronalfa.restaurant.app.AppConfig;
 import com.superescuadronalfa.restaurant.app.AppController;
 import com.superescuadronalfa.restaurant.dbEntities.Trabajador;
 import com.superescuadronalfa.restaurant.dbEntities.User;
