@@ -142,8 +142,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                         User usuario = ControlUsers.getInstance().fromJSON(user);
                         Trabajador t = ControlTrabajadores.getInstance().fromJSON(user);
                         intent.putExtra(MainActivity.EXTRA_TRABAJADOR, t);
-
-
+                        Toast.makeText(getApplicationContext(), "Bienvenido " + t.getNombre(), Toast.LENGTH_SHORT).show();
                         startActivity(intent);
                         finish();
                     } else {
@@ -296,33 +295,19 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                     // Check for error node in json
                     if (!error) {
                         JSONObject user = jObj.getJSONObject("user");
-                        String nombre = user.getString("nombre");
-                        String apellidos = user.getString("nombre");
                         String apiKey = user.getString("api_key");
                         session.login(apiKey);
-
-                        int puesto = user.getInt("id_puesto");
-                        int idTrabajador = user.getInt("id_trabajador");
-
-                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-
-                        Trabajador t = new Trabajador(nombre, apellidos, null, null, null, puesto);
-                        t.setIdTrabajador(idTrabajador);
-                        intent.putExtra(MainActivity.EXTRA_TRABAJADOR, t);
-
-
-                        startActivity(intent);
-                        finish();
+                        loginByStoredKey();
                     } else {
                         // Error in login. Get the error message
                         String errorMsg = jObj.getString("error_msg");
                         Toast.makeText(getApplicationContext(), errorMsg, Toast.LENGTH_LONG).show();
+                        showProgress(false);
                     }
                 } catch (JSONException e) {
                     // JSON error
                     e.printStackTrace();
                     Toast.makeText(getApplicationContext(), "Json error: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                } finally {
                     showProgress(false);
                 }
             }
