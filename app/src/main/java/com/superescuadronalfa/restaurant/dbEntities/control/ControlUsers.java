@@ -64,10 +64,8 @@ public class ControlUsers implements IControlEntidad<User> {
     @Override
     public User fromJSON(JSONObject result) throws JSONException {
         String user = result.getString("username");
-        String hash = result.getString("hash");
-        String salt = result.getString("salt");
         int idTrabajador = result.getInt("id_trabajador");
-        User u = new User(idTrabajador, user, hash.getBytes(), salt.getBytes());
+        User u = new User(idTrabajador, user, null, null); // No ocupamos hash ni salt ya que usaremos la api_key
         return u;
     }
 

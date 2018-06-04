@@ -42,15 +42,13 @@ public class ImageUtils {
         File cache = cw.getCacheDir();
         File directoryPath = new File(cache.getPath() + '/' + directory);
         String[] entries = directoryPath.list();
-        for (String s : entries) {
-            File currentFile = new File(directoryPath.getPath(), s);
-            currentFile.delete();
-        }
+        if (entries != null)
+            for (String s : entries) {
+                File currentFile = new File(directoryPath.getPath(), s);
+                currentFile.delete();
+            }
 
-        if (directoryPath.exists()) {
-            return directoryPath.delete();
-        }
-        return false;
+        return !directoryPath.exists() || directoryPath.delete();
     }
 
     public String saveToInternalStorage(Bitmap bitmapImage, String key) {

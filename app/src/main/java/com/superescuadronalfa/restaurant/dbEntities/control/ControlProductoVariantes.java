@@ -74,16 +74,19 @@ public class ControlProductoVariantes implements IControlEntidad<ProductoVariant
         return new ProductoVariante(id, nombre, descripcion, disponible, precio);
     }
 
-    /****
-     * @param result Resuslset donde esta guardada la informacion (variantes como una lista)
-     * @return La lista con esas variantes
-     */
-    public List<ProductoVariante> fromResultSetList(ResultSet result) throws SQLException {
-        String variantes = result.getString("variantes");
-        if (variantes == null) return new ArrayList<>();
-        StringTokenizer st = new StringTokenizer(variantes, "|");
+    public String fromListToString(List<ProductoVariante> variantes) {
+        StringBuilder variantesString = new StringBuilder();
+        for (ProductoVariante pv : variantes) {
+            if (variantesString.length() > 0) variantesString.append(',');
+            variantesString.append(pv.getIdProductoVariante());
+        }
+        return variantesString.toString();
+    }
 
+    public List<ProductoVariante> fromStringList(String variantes) {
+        if (variantes == null || variantes.equals("null")) return new ArrayList<>();
         ArrayList<ProductoVariante> listvariantes = new ArrayList<>();
+        StringTokenizer st = new StringTokenizer(variantes, "|");
         while (st.hasMoreTokens()) {
             StringTokenizer st2 = new StringTokenizer(st.nextToken(), ",");
             int id = Integer.parseInt(st2.nextToken().trim());
@@ -93,6 +96,15 @@ public class ControlProductoVariantes implements IControlEntidad<ProductoVariant
             // TODO agregar descripcion
         }
         return listvariantes;
+    }
+
+    /****
+     * @param result Resuslset donde esta guardada la informacion (variantes como una lista)
+     * @return La lista con esas variantes
+     */
+    public List<ProductoVariante> fromResultSetList(ResultSet result) throws SQLException {
+        String variantes = result.getString("variantes");
+        return fromStringList(variantes);
     }
 
     public List<ProductoVariante> fromJSONList(JSONObject result) throws JSONException {

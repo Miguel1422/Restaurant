@@ -51,8 +51,15 @@ public class ControlTipoProducto implements IControlEntidad<TipoProducto> {
     }
 
     @Override
-    public List<TipoProducto> getListaFromJSON(JSONArray result) {
-        return null;
+    public List<TipoProducto> getListaFromJSON(JSONArray result) throws JSONException {
+        ArrayList<TipoProducto> ordenes = new ArrayList<>();
+        for (int i = 0; i < result.length(); i++) {
+            JSONObject producto = result.getJSONObject(i);
+            TipoProducto ac = fromJSON(producto);
+            ac.setVariantes(ControlProductoVariantes.getInstance().fromStringList(producto.getString("variantes")));
+            ordenes.add(ac);
+        }
+        return ordenes;
     }
 
     public List<ProductoVariante> getVariantes(TipoProducto tipoProducto) {

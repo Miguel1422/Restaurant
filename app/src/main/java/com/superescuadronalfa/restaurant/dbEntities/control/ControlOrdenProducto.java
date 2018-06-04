@@ -30,14 +30,11 @@ public class ControlOrdenProducto implements IControlEntidad<OrdenProducto> {
         return instance;
     }
 
+
     @Override
     public boolean agregar(OrdenProducto entidad) {
         String query = "EXECUTE agregarOrdenProducto @IDOrden = ?, @IDTipoProducto = ?, @IDVariantes = ?, @Cantidad = ?, @Comentarios = ?";
-        StringBuilder variantes = new StringBuilder();
-        for (ProductoVariante pv : entidad.getVariantesDeLaOrden()) {
-            if (variantes.length() > 0) variantes.append(',');
-            variantes.append(pv.getIdProductoVariante());
-        }
+        String variantes = ControlProductoVariantes.getInstance().fromListToString(entidad.getVariantesDeLaOrden());
         if (DBRestaurant.ejecutaComandoPreparada(query, entidad.getOrden().getIdOrden(), entidad.getTipoProducto().getIdTipoProducto(), variantes.toString(), entidad.getCantidad(), entidad.getComentarios())) {
             return true;
         }

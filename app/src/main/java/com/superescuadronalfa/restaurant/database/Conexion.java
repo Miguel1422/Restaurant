@@ -2,6 +2,8 @@ package com.superescuadronalfa.restaurant.database;
 
 import android.util.Log;
 
+import com.superescuadronalfa.restaurant.AppConfig;
+
 import net.sourceforge.jtds.jdbc.Driver;
 
 import java.sql.Connection;
@@ -16,6 +18,9 @@ public class Conexion {
     private static String PORT = "1433";
 
     public static Connection getConexion() {
+        if (!AppConfig.USE_CONNECTOR) {
+            throw new RuntimeException("No se permite usar el conector");
+        }
         try {
             Driver c = (Driver) Class.forName("net.sourceforge.jtds.jdbc.Driver").newInstance();
             String connectionString = String.format("jdbc:jtds:sqlserver://%s:%s/%s;user=%s;password=%s", HOST, PORT, DB, USERNAME, PASS);

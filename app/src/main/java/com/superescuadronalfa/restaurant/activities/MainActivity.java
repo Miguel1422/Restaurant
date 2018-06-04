@@ -11,6 +11,7 @@ import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -58,6 +59,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ProgressBar progressBar;
     private ImageView imageView;
     private Trabajador trabajador;
+    private SwipeRefreshLayout swipeLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,6 +88,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         trabajador = (Trabajador) extras.get(EXTRA_TRABAJADOR);
 
         progressBar = findViewById(R.id.progressBar);
+        swipeLayout = findViewById(R.id.swipe_layout);
+
+        swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                if (AppConfig.USE_CONNECTOR) {
+                    UserLoggedTask task = new UserLoggedTask(trabajador);
+                    task.execute();
+                } else {
+                    userLogged();
+                }
+            }
+        });
+        swipeLayout.setColorSchemeResources(R.color.colorPrimary,
+                android.R.color.holo_green_dark,
+                android.R.color.holo_orange_dark,
+                android.R.color.holo_blue_dark);
 
         progressBar.setVisibility(View.VISIBLE);
 
@@ -255,14 +274,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     Toast.makeText(getApplicationContext(), "Json error: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 } finally {
                     progressBar.setVisibility(View.GONE);
+                    swipeLayout.setRefreshing(false);
                 }
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.e(TAG, "Login Error: " + error.getMessage());
-                Toast.makeText(getApplicationContext(),
-                        error.getMessage(), Toast.LENGTH_LONG).show();
+                Log.e(TAG, "263 Login Error: " + error.getMessage());
+                Toast.makeText(getApplicationContext(), "Error no se cargo el contenido comprueba tu conexion " + (error.getMessage() != null ? error.getMessage() : error.toString()), Toast.LENGTH_LONG).show();
             }
         }) {
             @Override
@@ -320,9 +339,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.e(TAG, "Login Error: " + error.getMessage());
-                Toast.makeText(getApplicationContext(),
-                        error.getMessage(), Toast.LENGTH_LONG).show();
+                Log.e(TAG, "322 Login Error:" + error.getMessage());
+                Toast.makeText(getApplicationContext(), "Error No se cargo la imagen comprueba tu conexion " + (error.getMessage() != null ? error.getMessage() : error.toString()), Toast.LENGTH_LONG).show();
             }
         }) {
             @Override
@@ -372,6 +390,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 initializeAdapter(mesas);
             } else
                 Toast.makeText(MainActivity.this.getApplicationContext(), "Error", Toast.LENGTH_SHORT).show();
+            swipeLayout.setRefreshing(false);
             progressBar.setVisibility(View.GONE);
         }
 

@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -49,6 +50,7 @@ public class PedidosActivity extends AppCompatActivity {
     private ProgressBar progressBar;
     private MyPedidosItemRecyclerViewAdapter adap;
     private FloatingActionButton fab;
+    private SwipeRefreshLayout swipeLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,6 +102,7 @@ public class PedidosActivity extends AppCompatActivity {
 
         });
 
+        mesa = null;
         progressBar = findViewById(R.id.progressBarPedidos);
         if (b != null && (mesa = b.getParcelable(EXTRA_MESA)) != null) {
             this.mesa = mesa;
@@ -112,6 +115,25 @@ public class PedidosActivity extends AppCompatActivity {
             Log.d("Error", " No se tiene una mesa");
             finish();
         }
+
+        swipeLayout = findViewById(R.id.swipe_layout);
+
+        final Mesa finalMesa = mesa;
+        swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                if (AppConfig.USE_CONNECTOR) {
+                    new LoadOrdenMesa().execute(finalMesa);
+                } else {
+                    loadOrdenMesa(finalMesa);
+                }
+            }
+        });
+        swipeLayout.setColorSchemeResources(R.color.colorPrimary,
+                android.R.color.holo_green_dark,
+                android.R.color.holo_orange_dark,
+                android.R.color.holo_blue_dark);
+
     }
 
     private void loadOrdenMesa(Mesa mesa) {
@@ -149,14 +171,15 @@ public class PedidosActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "Json error: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 } finally {
                     progressBar.setVisibility(View.GONE);
+                    swipeLayout.setRefreshing(false);
                 }
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.e(TAG, "Login Error: " + error.getMessage());
-                Toast.makeText(getApplicationContext(),
-                        error.getMessage(), Toast.LENGTH_LONG).show();
+                Log.e(TAG, "Error: " + error.getMessage());
+                Toast.makeText(getApplicationContext(), "Error no se pudo cargar el contenido comprueba tu conexion " + (error.getMessage() != null ? error.getMessage() : error.toString()), Toast.LENGTH_LONG).show();
+                finish();
             }
         }) {
             @Override
@@ -212,8 +235,8 @@ public class PedidosActivity extends AppCompatActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.e(TAG, "Login Error: " + error.getMessage());
-                Toast.makeText(getApplicationContext(),
-                        error.getMessage(), Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "Error no se pudo crear la orden comprueba tu conexion " + (error.getMessage() != null ? error.getMessage() : error.toString()), Toast.LENGTH_LONG).show();
+                finish();
             }
         }) {
             @Override
@@ -241,7 +264,8 @@ public class PedidosActivity extends AppCompatActivity {
 
                     // Check for error node in json
                     if (!error) {
-
+                        Toast.makeText(getApplicationContext(), "Eliminado", Toast.LENGTH_LONG).show();
+                        checkScroll();
                     } else {
                         String errorMsg = jObj.getString("error_msg");
                         Toast.makeText(getApplicationContext(), "Error " + errorMsg, Toast.LENGTH_LONG).show();
@@ -258,9 +282,9 @@ public class PedidosActivity extends AppCompatActivity {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.e(TAG, "Login Error: " + error.getMessage());
-                Toast.makeText(getApplicationContext(),
-                        error.getMessage(), Toast.LENGTH_LONG).show();
+                Log.e(TAG, "Error: Comprueba tu conexion " + error.getMessage());
+                Toast.makeText(getApplicationContext(), "Error no se pudo eliminar el pedido comprueba tu conexion " + (error.getMessage() != null ? error.getMessage() : error.toString()), Toast.LENGTH_LONG).show();
+                finish();
             }
         }) {
             @Override
@@ -298,10 +322,20 @@ public class PedidosActivity extends AppCompatActivity {
     private void removeListItem(int index, OrdenProducto item) {
         if (adap == null) return;
         adap.deleteItem(index);
+
         if (AppConfig.USE_CONNECTOR)
             new EliminarPedido().execute(item);
         else {
             eliminarPedido(item);
+        }
+
+
+    }
+
+    private void checkScroll() {
+        boolean canScroll = rv.canScrollVertically(-1) || rv.canScrollVertically(1) || rv.canScrollVertically(-1);
+        if (!canScroll && !fab.isShown()) {
+            fab.show();
         }
     }
 
@@ -391,11 +425,7 @@ public class PedidosActivity extends AppCompatActivity {
             super.onPostExecute(aBoolean);
             if (aBoolean) {
                 Toast.makeText(PedidosActivity.this.getApplicationContext(), "Se ha eliminado el pedido", Toast.LENGTH_SHORT).show();
-
-                boolean canScroll = rv.canScrollVertically(-1) || rv.canScrollVertically(1) || rv.canScrollVertically(-1);
-                if (!canScroll && !fab.isShown()) {
-                    fab.show();
-                }
+                checkScroll();
             } else {
                 Toast.makeText(PedidosActivity.this.getApplicationContext(), "Error comprueba tu conexion", Toast.LENGTH_LONG).show();
             }
@@ -465,6 +495,7 @@ public class PedidosActivity extends AppCompatActivity {
                     break;
             }
             progressBar.setVisibility(View.GONE);
+            swipeLayout.setRefreshing(false);
         }
 
         @Override

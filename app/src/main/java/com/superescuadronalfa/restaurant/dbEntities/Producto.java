@@ -97,8 +97,11 @@ public class Producto implements Parcelable {
 
 
     private void loadImage() {
-
         image = ControlProductos.getInstance().burcarImagen(this, AppController.getInstance().getApplicationContext());
+    }
+
+    public boolean hasImageLoaded() {
+        return image != null;
     }
 
     public Bitmap getImage() {

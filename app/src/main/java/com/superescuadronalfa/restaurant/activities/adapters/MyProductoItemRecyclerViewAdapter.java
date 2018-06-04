@@ -8,7 +8,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.superescuadronalfa.restaurant.R;
+import com.superescuadronalfa.restaurant.app.AppController;
 import com.superescuadronalfa.restaurant.dbEntities.Producto;
+import com.superescuadronalfa.restaurant.dbEntities.control.ControlProductos;
 
 import java.util.List;
 
@@ -36,7 +38,11 @@ public class MyProductoItemRecyclerViewAdapter extends RecyclerView.Adapter<MyPr
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = mValues.get(position);
-        holder.mImageView.setImageBitmap(mValues.get(position).getImage());
+        if (!mValues.get(position).hasImageLoaded()) {
+            ControlProductos.getInstance().burcarImagen(mValues.get(position), AppController.getInstance(), holder.mImageView);
+        } else {
+            holder.mImageView.setImageBitmap(mValues.get(position).getImage());
+        }
         holder.mContentView.setText(mValues.get(position).getNombreProducto());
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
