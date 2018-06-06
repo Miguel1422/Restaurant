@@ -50,6 +50,7 @@ public class ControlOrdenProducto implements IControlEntidad<OrdenProducto> {
         }
         return variantes.toString();
     }
+
     @Override
     public boolean editar(OrdenProducto entidad) {
         String query = "EXECUTE editarOrdenProducto \n" +
@@ -112,8 +113,24 @@ public class ControlOrdenProducto implements IControlEntidad<OrdenProducto> {
     }
 
     @Override
-    public OrdenProducto fromJSON(JSONObject result) {
-        return null;
+    public OrdenProducto fromJSON(JSONObject result) throws JSONException {
+        Orden orden = new Orden(result.getInt("id_orden"));
+
+        int idOrdenProducto = result.getInt("id_orden_producto");
+        TipoProducto tp = ControlTipoProducto.getInstance().fromJSON(result);
+
+        Producto p = ControlProductos.getInstance().fromJSON(result);
+        tp.setProducto(p);
+
+        BigDecimal precio = new BigDecimal(result.getString("precio"));
+        int cantidad = result.getInt("cantidad");
+        String comentarios = result.getString("comentarios");
+        String status = result.getString("status");
+        OrdenProducto op = new OrdenProducto(idOrdenProducto, orden, tp, precio, cantidad, comentarios, status);
+        op.setVariantesDeLaOrden(ControlProductoVariantes.getInstance().fromJSONList(result));
+
+        op.setOrden(orden);
+        return op;
     }
 
 

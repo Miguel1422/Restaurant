@@ -2,6 +2,7 @@ package com.superescuadronalfa.restaurant.activities;
 
 import android.annotation.SuppressLint;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
@@ -188,26 +189,44 @@ public class ProductosActivity extends AppCompatActivity {
             variantes[i] = tipos[i].getNombreTipo(); // + " " + CurrencyConverter.currencyFormat(tipos[i].getPrecioTipo());
         }
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        AlertDialog dialog;
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        builder.setNeutralButton("Personalizar", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // TODO mostrar progressbar?
+                dialog.dismiss();
+                if (AppConfig.USE_CONNECTOR) {
+                    agregarProducto(tipos[0], true);
+
+                } else {
+                    agregarProductoPHP(tipos[0], true);
+                }
+            }
+        });
         builder.setNegativeButton("Cancelar", null);
         builder.setTitle("Escoge un tamaño");
-        builder.setItems(variantes, new DialogInterface.OnClickListener() {
+        builder.setSingleChoiceItems(variantes, -1, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 if (AppConfig.USE_CONNECTOR)
-                    agregarProducto(tipos[which]);
+                    agregarProducto(tipos[which], false);
                 else {
-                    agregarProductoPHP(tipos[which]);
+                    agregarProductoPHP(tipos[which], false);
                 }
                 // Toast.makeText(getApplicationContext(), tipos[which].getNombreTipo() + " pressed", Toast.LENGTH_SHORT).show();
+                dialog.dismiss();
             }
 
-
         });
-        builder.show();
+        dialog = builder.create();
+        dialog.show();
+        // builder.show();
+
     }
 
-    private void agregarProductoPHP(final TipoProducto tipo) {
+    private void agregarProductoPHP(final TipoProducto tipo, final boolean pedidoPersonalizado) {
         if (ordenActual == null) {
             Toast.makeText(getApplicationContext(), "Error no se pudo crear el pedido comprueba tu conexion ", Toast.LENGTH_LONG).show();
             finish();
@@ -227,6 +246,13 @@ public class ProductosActivity extends AppCompatActivity {
                     if (!error) {
                         Toast.makeText(getApplicationContext(), "Agregado", Toast.LENGTH_LONG).show();
                         setResult(RESULT_OK/*, Intent*/);
+
+                        if (pedidoPersonalizado) {
+                            OrdenProducto po = ControlOrdenProducto.getInstance().fromJSON(jObj.getJSONObject("pedido_agregado"));
+                            Intent intent = new Intent(getApplicationContext(), EditarPedidoActivity.class);
+                            intent.putExtra(EditarPedidoActivity.EXTRA_PEDIDO, po);
+                            startActivity(intent);
+                        }
                     } else {
 
                         // Error  Get the error message
@@ -267,7 +293,7 @@ public class ProductosActivity extends AppCompatActivity {
     }
 
     @SuppressLint("StaticFieldLeak")
-    private void agregarProducto(TipoProducto tipo) {
+    private void agregarProducto(TipoProducto tipo, final boolean pedidoPersonalizado) {
         final OrdenProducto op = new OrdenProducto(0, ordenActual, tipo, tipo.getPrecioTipo(), 1, "", "En cola");
         new AsyncTask<Void, Void, Boolean>() {
             @Override
@@ -281,7 +307,11 @@ public class ProductosActivity extends AppCompatActivity {
                 if (aBoolean) {
                     Toast.makeText(ProductosActivity.this, "Se ha agregado el pedido", Toast.LENGTH_SHORT).show();
                     setResult(RESULT_OK/*, Intent*/);
-                    // TODO llevar a editar el pedido
+
+                    // Si es un pedido personalizado, llevar a editar
+                    if (pedidoPersonalizado) {
+                        // TODO
+                    }
                 } else {
                     Toast.makeText(ProductosActivity.this, "Error comprueba tu conexion", Toast.LENGTH_LONG).show();
                 }

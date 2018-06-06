@@ -62,6 +62,7 @@ public class EditarPedidoActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(), "No se ha cargado la informacion del pedido", Toast.LENGTH_LONG).show();
             Log.d("Error", "No se ha cargado la informacion del pedido");
             finish();
+            return;
         }
         spinner = findViewById(R.id.spinner);
         spinnerCan = findViewById(R.id.spinnerCan);
