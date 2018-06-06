@@ -47,6 +47,14 @@ public class MyPedidosItemRecyclerViewAdapter extends RecyclerView.Adapter<MyPed
         holder.mDescriptionView.setText(mValues.get(position).getComentarios());
         holder.mCantidadView.setText(("Cnt: " + mValues.get(position).getCantidad()));
 
+        if (mValues.get(position).getStatus().equals("En cola")) {
+            holder.mImageView.setImageResource(R.mipmap.en_espera);
+        } else if (mValues.get(position).getStatus().equals("Finalizado")) {
+            holder.mImageView.setImageResource(R.mipmap.finalizado);
+        } else if (mValues.get(position).getStatus().equals("Cocinando")) {
+            holder.mImageView.setImageResource(R.mipmap.cocinando);
+        }
+
         OrdenProducto ac = mValues.get(position);
 
         if (ac.getVariantesDeLaOrden().size() > 0) {
@@ -64,7 +72,14 @@ public class MyPedidosItemRecyclerViewAdapter extends RecyclerView.Adapter<MyPed
                 }
             }
         });
-
+        holder.mImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (null != mListener) {
+                    mListener.onImageClicked(holder.mItem, position);
+                }
+            }
+        });
         holder.mBtnRemoveView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -93,8 +108,12 @@ public class MyPedidosItemRecyclerViewAdapter extends RecyclerView.Adapter<MyPed
 
     public interface OnListFragmentInteractionListener {
         void onListFragmentInteraction(OrdenProducto item);
+
         void onRemoveClicked(OrdenProducto item, int index);
+
         void onEditClicked(OrdenProducto item, int index);
+
+        void onImageClicked(OrdenProducto item, int index);
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {

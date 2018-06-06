@@ -36,6 +36,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -153,6 +155,7 @@ public class PedidosActivity extends AppCompatActivity {
                         Orden orden = ControlOrdenes.getInstance().fromJSON(ordenJSON);
                         JSONArray array = ordenJSON.getJSONArray("pedidos");
                         List<OrdenProducto> productos = ControlOrdenProducto.getInstance().getListaFromJSON(array, orden);
+                        Collections.sort(productos);
                         initializeAdapter(productos);
                         fab.setVisibility(View.VISIBLE);
                         PedidosActivity.this.orden = orden;
@@ -374,11 +377,101 @@ public class PedidosActivity extends AppCompatActivity {
                 startActivityForResult(intent, EDITAR_PEDIDO);
             }
 
+            @Override
+            public void onImageClicked(final OrdenProducto item, int index) {
+                AlertDialog dialog;
+                final AlertDialog.Builder builder = new AlertDialog.Builder(PedidosActivity.this);
+
+                builder.setNegativeButton("Cancelar", null);
+                builder.setTitle("Selecciona un estado");
+
+                final String[] estados = OrdenProducto.ESTADOS;
+                int selectedIndex = Arrays.asList(estados).indexOf(item.getStatus());
+                builder.setSingleChoiceItems(estados, selectedIndex, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (AppConfig.USE_CONNECTOR) {
+                        } else {
+                            cambiarEstado(item, estados[which]);
+                        }
+                        dialog.dismiss();
+                    }
+
+                });
+                dialog = builder.create();
+                dialog.show();
+            }
+
 
         });
 
         // rv.setAdapter(adapter);
         rv.setAdapter(adap);
+    }
+
+    private void cambiarEstado(final OrdenProducto nuevo, String estado) {
+        nuevo.setStatus(estado);
+        String tag_string_req = "req_editar_pedido";
+        String urlGetMesas = AppConfig.URL_EDITAR_PEDIDO;
+        StringRequest strReq = new StringRequest(Request.Method.POST, urlGetMesas, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                Log.d(TAG, "Login Response: " + response.toString());
+                try {
+                    JSONObject jObj = new JSONObject(response);
+                    boolean error = jObj.getBoolean("error");
+
+                    // Check for error node in json
+                    if (!error) {
+                        Toast.makeText(getApplicationContext(), "Orden editada", Toast.LENGTH_SHORT).show();
+                        loadOrdenMesa(mesa);
+                    } else {
+                        String errorMsg = jObj.getString("error_msg");
+                        Toast.makeText(getApplicationContext(), "Error " + errorMsg, Toast.LENGTH_LONG).show();
+                        finish();
+                    }
+                } catch (JSONException e) {
+                    // JSON error
+                    e.printStackTrace();
+                    Toast.makeText(getApplicationContext(), "Json error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                } finally {
+                    progressBar.setVisibility(View.GONE);
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e(TAG, "Error, comprueba tu conexion: " + error.getMessage());
+                Toast.makeText(getApplicationContext(), "Error, No se edito el pedido comprueba tu conexion " + (error.getMessage() != null ? error.getMessage() : error.toString()), Toast.LENGTH_LONG).show();
+                finish();
+            }
+        }) {
+            // Se tiene que gacer pos post porque en los comentarions se puede agregar cosas raras
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<>();
+                params.put("api_key", new SessionManager(getApplicationContext()).getApiKey());
+                params.put("id_orden_producto", "" + nuevo.getIdOrdenProducto());
+                params.put("id_tipo_producto", "" + nuevo.getTipoProducto().getIdTipoProducto());
+                params.put("id_variantes", listVariantesToString(nuevo.getVariantesDeLaOrden()));
+                params.put("cantidad", "" + nuevo.getCantidad());
+                params.put("comentarios", "" + nuevo.getComentarios());
+                params.put("status", "" + nuevo.getStatus());
+                return params;
+            }
+        };
+
+        // Adding request to request queue
+        AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
+    }
+
+    private String listVariantesToString(List<ProductoVariante> variantesList) {
+        StringBuilder variantes = new StringBuilder();
+        for (ProductoVariante pv : variantesList) {
+            if (variantes.length() > 0) variantes.append(',');
+            variantes.append(pv.getIdProductoVariante());
+        }
+        return variantes.toString();
     }
 
     // Muestar un dialogo para preguntar si se desea crear una orden

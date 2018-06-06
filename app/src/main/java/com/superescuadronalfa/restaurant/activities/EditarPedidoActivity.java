@@ -184,6 +184,7 @@ public class EditarPedidoActivity extends AppCompatActivity {
                 params.put("id_variantes", listVariantesToString(nuevo.getVariantesDeLaOrden()));
                 params.put("cantidad", "" + nuevo.getCantidad());
                 params.put("comentarios", "" + nuevo.getComentarios());
+                params.put("status", "" + nuevo.getStatus());
                 return params;
             }
         };

@@ -2,13 +2,15 @@ package com.superescuadronalfa.restaurant.dbEntities;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 
 import com.superescuadronalfa.restaurant.dbEntities.control.ControlOrdenProducto;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.List;
 
-public class OrdenProducto implements Parcelable {
+public class OrdenProducto implements Parcelable, Comparable<OrdenProducto> {
     private int idOrdenProducto;
     private Orden orden;
     private TipoProducto tipoProducto;
@@ -17,6 +19,8 @@ public class OrdenProducto implements Parcelable {
     private String comentarios;
     private String status;
     private List<ProductoVariante> variantesDeLaOrden;
+
+    public static final String[] ESTADOS = {"En cola", "Cocinando", "Finalizado"};
 
     public OrdenProducto(int idOrdenProducto, Orden ordenProducto, TipoProducto tipoProducto, BigDecimal precio, int cantidad, String comentarios, String status) {
         this.orden = ordenProducto;
@@ -89,6 +93,10 @@ public class OrdenProducto implements Parcelable {
         return orden;
     }
 
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
     public void setOrden(Orden orden) {
         this.orden = orden;
     }
@@ -113,5 +121,14 @@ public class OrdenProducto implements Parcelable {
 
     public String getStatus() {
         return status;
+    }
+
+
+    @Override
+    public int compareTo(@NonNull OrdenProducto o) {
+        int thisI = Arrays.asList(ESTADOS).indexOf(this.getStatus());
+        int otherI = Arrays.asList(ESTADOS).indexOf(o.getStatus());
+        if (thisI != otherI) return thisI - otherI;
+        return Integer.compare(this.getIdOrdenProducto(), o.getIdOrdenProducto());
     }
 }
