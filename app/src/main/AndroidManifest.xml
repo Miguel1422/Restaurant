@@ -11,8 +11,8 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
-        android:allowBackup="true"
         android:name="com.superescuadronalfa.restaurant.app.AppController"
+        android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
@@ -47,14 +47,19 @@
             android:label="@string/title_activity_productos"
             android:parentActivityName=".activities.PedidosActivity"
             android:theme="@style/AppTheme.NoActionBar">
+
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+            </intent-filter>
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
+                android:resource="@xml/searchable"
                 android:value="com.superescuadronalfa.restaurant.activities.PedidosActivity" />
         </activity>
         <activity
             android:name=".activities.EditarPedidoActivity"
             android:label="Editar Pedido"
-            android:windowSoftInputMode="stateHidden"/>
+            android:windowSoftInputMode="stateHidden" />
     </application>
 
 </manifest>

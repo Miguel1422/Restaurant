@@ -7,11 +7,13 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
 
 import com.superescuadronalfa.restaurant.R;
 import com.superescuadronalfa.restaurant.dbEntities.Producto;
@@ -29,11 +31,18 @@ public class SectionsPagerAdapter extends FragmentStatePagerAdapter {
     public static int COLUMN_COUNT = 2;
     private MyProductoItemRecyclerViewAdapter.OnListFragmentInteractionListener listener;
 
+
     public SectionsPagerAdapter(FragmentManager fm, List<List<Producto>> productosPorCategoria,
                                 MyProductoItemRecyclerViewAdapter.OnListFragmentInteractionListener listener) {
         super(fm);
         this.productosPorCategoria = productosPorCategoria;
         this.listener = listener;
+
+    }
+
+    public Fragment getFragment(ViewPager viewPager) {
+        Fragment myFragment = (Fragment) instantiateItem(viewPager, viewPager.getCurrentItem());
+        return myFragment;
     }
 
 
@@ -53,14 +62,17 @@ public class SectionsPagerAdapter extends FragmentStatePagerAdapter {
      * A placeholder fragment containing a simple view.
      */
     public static class PlaceholderFragment extends Fragment {
+        private List<MyProductoItemRecyclerViewAdapter> recyclerViewAdapters;
         /**
          * The fragment argument representing the section number for this
          * fragment.
          */
         private static final String ARG_SECTION_NUMBER = "section_number";
         private MyProductoItemRecyclerViewAdapter.OnListFragmentInteractionListener listener;
+        private Filter filter;
 
         public PlaceholderFragment() {
+            recyclerViewAdapters = new ArrayList<>();
         }
 
         /**
@@ -78,6 +90,9 @@ public class SectionsPagerAdapter extends FragmentStatePagerAdapter {
             return fragment;
         }
 
+        public Filter getFilter() {
+            return filter;
+        }
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -90,7 +105,12 @@ public class SectionsPagerAdapter extends FragmentStatePagerAdapter {
             recyclerView.setLayoutManager(new GridLayoutManager(context, COLUMN_COUNT));
 
             ArrayList<Producto> productos = getArguments().getParcelableArrayList(ARG_SECTION_NUMBER);
-            recyclerView.setAdapter(new MyProductoItemRecyclerViewAdapter(productos, listener));
+            MyProductoItemRecyclerViewAdapter recyclerViewAdapter = new MyProductoItemRecyclerViewAdapter(productos, listener);
+
+            filter = recyclerViewAdapter.getFilter();
+
+            recyclerView.setAdapter(recyclerViewAdapter);
+
 
             return rootView;
         }
