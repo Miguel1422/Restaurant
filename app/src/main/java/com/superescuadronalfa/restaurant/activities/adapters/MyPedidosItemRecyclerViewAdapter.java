@@ -1,7 +1,9 @@
 package com.superescuadronalfa.restaurant.activities.adapters;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,7 +40,7 @@ public class MyPedidosItemRecyclerViewAdapter extends RecyclerView.Adapter<MyPed
     }
 
     @Override
-    public void onBindViewHolder(final ViewHolder holder, final int position) {
+    public void onBindViewHolder(final ViewHolder holder, @SuppressLint("RecyclerView") final int position) {
         holder.mItem = mValues.get(position);
         // holder.mImageView.setImageBitmap(mValues.get(position).getImage());
         String content = mValues.get(position).getTipoProducto().getProducto().getNombreProducto() + " "
@@ -47,12 +49,16 @@ public class MyPedidosItemRecyclerViewAdapter extends RecyclerView.Adapter<MyPed
         holder.mDescriptionView.setText(mValues.get(position).getComentarios());
         holder.mCantidadView.setText(("Cnt: " + mValues.get(position).getCantidad()));
 
-        if (mValues.get(position).getStatus().equals("En cola")) {
-            holder.mImageView.setImageResource(R.mipmap.en_espera);
-        } else if (mValues.get(position).getStatus().equals("Finalizado")) {
-            holder.mImageView.setImageResource(R.mipmap.finalizado);
-        } else if (mValues.get(position).getStatus().equals("Cocinando")) {
-            holder.mImageView.setImageResource(R.mipmap.cocinando);
+        switch (mValues.get(position).getStatus()) {
+            case "En cola":
+                holder.mImageView.setImageResource(R.drawable.en_espera);
+                break;
+            case "Finalizado":
+                holder.mImageView.setImageResource(R.drawable.finalizado);
+                break;
+            case "Cocinando":
+                holder.mImageView.setImageResource(R.drawable.cocinando);
+                break;
         }
 
         OrdenProducto ac = mValues.get(position);
@@ -60,6 +66,7 @@ public class MyPedidosItemRecyclerViewAdapter extends RecyclerView.Adapter<MyPed
         if (ac.getVariantesDeLaOrden().size() > 0) {
             // TODO agregar la lista de variantes
             // Hecho en activity editar, Aqui es necesario?
+            Log.w("Nada", "Aqui se deberian mostar las mesa");
         }
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
@@ -117,17 +124,17 @@ public class MyPedidosItemRecyclerViewAdapter extends RecyclerView.Adapter<MyPed
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        public final View mView;
-        public final ImageView mImageView;
-        public final TextView mContentView;
-        public final TextView mDescriptionView;
-        public final Button mBtnRemoveView;
-        public final Button mBtnEditView;
-        public final TextView mCantidadView;
+        final View mView;
+        final ImageView mImageView;
+        final TextView mContentView;
+        final Button mBtnRemoveView;
+        final Button mBtnEditView;
+        final TextView mCantidadView;
+        private final TextView mDescriptionView;
 
         public OrdenProducto mItem;
 
-        public ViewHolder(View view) {
+        ViewHolder(View view) {
             super(view);
             mView = view;
             mImageView = view.findViewById(R.id.producto_photo);

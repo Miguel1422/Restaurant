@@ -30,5 +30,7 @@
     <string name="btn_eliminar">Eliminar</string>
     <string name="tv_vari">Variantes</string>
     <string name="button_edit">Editar</string>
-    <string name="delete_cache">Actualizar Imagenes</string>
+    <string name="delete_cache">Actualizar Imágenes</string>
+    <string name="buscar">Buscar</string>
+    <string name="mesa"> Mesa</string>
 </resources>

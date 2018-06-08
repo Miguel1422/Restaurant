@@ -30,4 +30,6 @@
     <string name="tv_vari">Variants</string>
     <string name="button_edit">Edit</string>
     <string name="delete_cache">Update Images</string>
+    <string name="buscar">Search</string>
+    <string name="mesa"> Table</string>
 </resources>

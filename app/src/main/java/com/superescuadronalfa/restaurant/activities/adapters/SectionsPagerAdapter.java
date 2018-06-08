@@ -16,10 +16,13 @@ import android.view.ViewGroup;
 import android.widget.Filter;
 
 import com.superescuadronalfa.restaurant.R;
+import com.superescuadronalfa.restaurant.app.AppController;
 import com.superescuadronalfa.restaurant.dbEntities.Producto;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static android.content.res.Configuration.ORIENTATION_LANDSCAPE;
 
 /**
  * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
@@ -41,8 +44,7 @@ public class SectionsPagerAdapter extends FragmentStatePagerAdapter {
     }
 
     public Fragment getFragment(ViewPager viewPager) {
-        Fragment myFragment = (Fragment) instantiateItem(viewPager, viewPager.getCurrentItem());
-        return myFragment;
+        return (Fragment) instantiateItem(viewPager, viewPager.getCurrentItem());
     }
 
 
@@ -62,7 +64,6 @@ public class SectionsPagerAdapter extends FragmentStatePagerAdapter {
      * A placeholder fragment containing a simple view.
      */
     public static class PlaceholderFragment extends Fragment {
-        private List<MyProductoItemRecyclerViewAdapter> recyclerViewAdapters;
         /**
          * The fragment argument representing the section number for this
          * fragment.
@@ -72,7 +73,6 @@ public class SectionsPagerAdapter extends FragmentStatePagerAdapter {
         private Filter filter;
 
         public PlaceholderFragment() {
-            recyclerViewAdapters = new ArrayList<>();
         }
 
         /**
@@ -101,15 +101,16 @@ public class SectionsPagerAdapter extends FragmentStatePagerAdapter {
 
             RecyclerView rv = rootView.findViewById(R.id.rv);
             Context context = rv.getContext();
-            RecyclerView recyclerView = rv;
-            recyclerView.setLayoutManager(new GridLayoutManager(context, COLUMN_COUNT));
-
+            if (AppController.getInstance().getResources().getConfiguration().orientation == ORIENTATION_LANDSCAPE)
+                rv.setLayoutManager(new GridLayoutManager(context, 3));
+            else
+                rv.setLayoutManager(new GridLayoutManager(context, 2));
             ArrayList<Producto> productos = getArguments().getParcelableArrayList(ARG_SECTION_NUMBER);
             MyProductoItemRecyclerViewAdapter recyclerViewAdapter = new MyProductoItemRecyclerViewAdapter(productos, listener);
 
             filter = recyclerViewAdapter.getFilter();
 
-            recyclerView.setAdapter(recyclerViewAdapter);
+            rv.setAdapter(recyclerViewAdapter);
 
 
             return rootView;

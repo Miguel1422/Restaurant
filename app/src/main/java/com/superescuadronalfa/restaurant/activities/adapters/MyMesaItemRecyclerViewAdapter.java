@@ -4,7 +4,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -34,6 +33,12 @@ public class MyMesaItemRecyclerViewAdapter extends RecyclerView.Adapter<MyMesaIt
         return new ViewHolder(view);
     }
 
+    /*
+    @Override
+    public int getItemViewType(final int position) {
+        return mIsSecondModeEnabled ? R.layout.my_layout_1 : R.layout.my_layout_2;
+    }
+    */
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = mValues.get(position);
@@ -57,16 +62,6 @@ public class MyMesaItemRecyclerViewAdapter extends RecyclerView.Adapter<MyMesaIt
             }
         });
 
-        holder.btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (null != mListener) {
-                    // Notify the active callbacks interface (the activity, if the
-                    // fragment is attached to one) that an item has been selected.
-                    mListener.onListButtonClicked(holder.mItem);
-                }
-            }
-        });
     }
 
     @Override
@@ -93,20 +88,18 @@ public class MyMesaItemRecyclerViewAdapter extends RecyclerView.Adapter<MyMesaIt
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        public final View mView;
-        public final TextView mIdView;
-        public final TextView mContentView;
-        public final Button btn;
-        public final ImageView imageView;
+        final View mView;
+        final TextView mIdView;
+        final TextView mContentView;
+        final ImageView imageView;
         public Mesa mItem;
 
-        public ViewHolder(View view) {
+        ViewHolder(View view) {
             super(view);
             mView = view;
             mIdView = view.findViewById(R.id.producto_name);
             mContentView = view.findViewById(R.id.person_age);
             imageView = view.findViewById(R.id.producto_photo);
-            btn = view.findViewById(R.id.button_delete);
         }
 
         @Override

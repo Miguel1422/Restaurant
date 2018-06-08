@@ -25,9 +25,10 @@
                 android:id="@+id/producto_photo"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
-                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
                 android:layout_alignParentTop="true"
-                android:layout_marginRight="16dp"
+                android:layout_marginEnd="16dp"
+                android:contentDescription="@string/mesa"
                 app:srcCompat="@mipmap/ic_launcher" />
 
             <TextView
@@ -36,8 +37,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
-                android:layout_toRightOf="@+id/producto_photo"
-                android:text="Hola"
+                android:layout_toEndOf="@+id/producto_photo"
                 android:textSize="30sp"
                 tools:text="Name" />
 
@@ -46,17 +46,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/producto_name"
-                android:layout_toRightOf="@+id/producto_photo"
-                android:text="Age" />
+                android:layout_toEndOf="@+id/producto_photo"
+                tools:text="Age" />
 
-            <Button
-                android:id="@+id/button_delete"
-                android:layout_width="154dp"
-                android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
-                android:layout_alignParentEnd="true"
-                android:text="Button"
-                android:visibility="invisible" />
 
         </RelativeLayout>
 
