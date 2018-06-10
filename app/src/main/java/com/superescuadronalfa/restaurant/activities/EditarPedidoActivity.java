@@ -90,6 +90,10 @@ public class EditarPedidoActivity extends AppCompatActivity {
         setResult(RESULT_OK);
         MyVairanteItemRecyclerViewAdapter adapter = (MyVairanteItemRecyclerViewAdapter) listVariantes.getAdapter();
 
+        if (txtComentarios.getText().toString().length() >= 255) {
+            Toast.makeText(EditarPedidoActivity.this, "Ese si que es un comentario largo, necesitas hacerlo mas corto :(", Toast.LENGTH_SHORT).show();
+            return;
+        }
         final OrdenProducto nuevo =
                 new OrdenProducto(
                         pedido.getIdOrdenProducto(),

@@ -236,6 +236,7 @@ public class ProductosActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 // TODO mostrar progressbar?
+                setResult(RESULT_OK/*, Intent*/);
                 dialog.dismiss();
                 if (AppConfig.USE_CONNECTOR) {
                     agregarProducto(tipos[0], true);
@@ -250,6 +251,7 @@ public class ProductosActivity extends AppCompatActivity {
         builder.setSingleChoiceItems(variantes, -1, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                setResult(RESULT_OK/*, Intent*/);
                 if (AppConfig.USE_CONNECTOR)
                     agregarProducto(tipos[which], false);
                 else {
@@ -285,7 +287,7 @@ public class ProductosActivity extends AppCompatActivity {
                     // Check for error node in json
                     if (!error) {
                         Toast.makeText(getApplicationContext(), "Agregado", Toast.LENGTH_LONG).show();
-                        setResult(RESULT_OK/*, Intent*/);
+
 
                         if (pedidoPersonalizado) {
                             OrdenProducto po = ControlOrdenProducto.getInstance().fromJSON(jObj.getJSONObject("pedido_agregado"));
@@ -346,7 +348,7 @@ public class ProductosActivity extends AppCompatActivity {
                 super.onPostExecute(aBoolean);
                 if (aBoolean) {
                     Toast.makeText(ProductosActivity.this, "Se ha agregado el pedido", Toast.LENGTH_SHORT).show();
-                    setResult(RESULT_OK/*, Intent*/);
+
 
                     // Si es un pedido personalizado, llevar a editar
                     if (pedidoPersonalizado) {

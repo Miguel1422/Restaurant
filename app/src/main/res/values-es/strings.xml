@@ -14,26 +14,25 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
-    <string name="title_activity_main">MainActivity</string>
+    <string name="title_activity_main">Restaurante</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="nav_header_title">Android Studio</string>
     <string name="nav_header_subtitle">android.studio@android.com</string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Configuración</string>
-    <string name="title_activity_pedidos">PedidosActivity</string>
-    <string name="title_activity_productos">ProductosActivity</string>
-    <string name="tab_text_1">Tab 1</string>
-    <string name="tab_text_2">Tab 2</string>
-    <string name="tab_text_3">Tab 3</string>
-    <string name="section_format">Hello World from section: %1$d</string>
+    <string name="title_activity_pedidos">Pedidos</string>
+    <string name="title_activity_productos">Agregar Pedido</string>
     <string name="btn_eliminar">Eliminar</string>
     <string name="tv_vari">Variantes</string>
     <string name="button_edit">Editar</string>
     <string name="delete_cache">Actualizar Imágenes</string>
     <string name="buscar">Buscar</string>
     <string name="mesa"> Mesa</string>
+    <string name="title_activity_settings">Configuración</string>
     <string name="pref_header_general">General</string>
     <string name="servidor">Servidor</string>
-    <string name="servidor_summary">Nombre de la PC donde se encyejntra el sistema</string>
+    <string name="servidor_summary">Nombre de la PC donde se encuentra el sistema</string>
+    <string name="opciones">Opciones</string>
+    <string name="exit">Salir</string>
 </resources>
