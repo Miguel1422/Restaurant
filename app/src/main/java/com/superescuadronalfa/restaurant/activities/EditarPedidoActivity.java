@@ -140,7 +140,7 @@ public class EditarPedidoActivity extends AppCompatActivity {
 
     private void editarPedido(final OrdenProducto nuevo) {
         String tag_string_req = "req_editar_pedido";
-        String urlGetMesas = AppConfig.URL_EDITAR_PEDIDO;
+        String urlGetMesas = AppConfig.getInstance().getUrlEditarPedido();
         StringRequest strReq = new StringRequest(Request.Method.POST, urlGetMesas, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
@@ -245,7 +245,7 @@ public class EditarPedidoActivity extends AppCompatActivity {
 
     private void loadContent(Producto producto) {
         String tag_string_req = "req_editar_pedido";
-        String urlGetMesas = AppConfig.URL_GET_TIPOS + "?id_producto=" + producto.getIdProducto();
+        String urlGetMesas = AppConfig.getInstance().getUrlGetTipos() + "?id_producto=" + producto.getIdProducto();
 
         StringRequest strReq = new StringRequest(Request.Method.POST, urlGetMesas, new Response.Listener<String>() {
             @Override

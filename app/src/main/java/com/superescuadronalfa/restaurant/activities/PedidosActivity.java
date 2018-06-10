@@ -140,7 +140,7 @@ public class PedidosActivity extends AppCompatActivity {
 
     private void loadOrdenMesa(Mesa mesa) {
         String tag_string_req = "req_pedidos";
-        String urlGetMesas = AppConfig.URL_GET_ORDEN + "?id_mesa=" + mesa.getIdMesa();
+        String urlGetMesas = AppConfig.getInstance().getUrlGetOrden() + "?id_mesa=" + mesa.getIdMesa();
         StringRequest strReq = new StringRequest(Request.Method.POST, urlGetMesas, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
@@ -199,7 +199,7 @@ public class PedidosActivity extends AppCompatActivity {
 
     private void crearOrden() {
         String tag_string_req = "req_pedidos";
-        String urlGetMesas = AppConfig.URL_ADD_ORDEN + "?id_mesa=" + mesa.getIdMesa();
+        String urlGetMesas = AppConfig.getInstance().getURLAddOrden() + "?id_mesa=" + mesa.getIdMesa();
         StringRequest strReq = new StringRequest(Request.Method.POST, urlGetMesas, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
@@ -256,7 +256,7 @@ public class PedidosActivity extends AppCompatActivity {
 
     private void eliminarPedido(OrdenProducto pedido) {
         String tag_string_req = "req_pedidos";
-        String urlGetMesas = AppConfig.URL_DELETE_PEDIDO + "?id_orden_producto=" + pedido.getIdOrdenProducto();
+        String urlGetMesas = AppConfig.getInstance().getUrlDeletePedido() + "?id_orden_producto=" + pedido.getIdOrdenProducto();
         StringRequest strReq = new StringRequest(Request.Method.POST, urlGetMesas, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
@@ -412,7 +412,7 @@ public class PedidosActivity extends AppCompatActivity {
     private void cambiarEstado(final OrdenProducto nuevo, String estado) {
         nuevo.setStatus(estado);
         String tag_string_req = "req_editar_pedido";
-        String urlGetMesas = AppConfig.URL_EDITAR_PEDIDO;
+        String urlGetMesas = AppConfig.getInstance().getUrlEditarPedido();
         StringRequest strReq = new StringRequest(Request.Method.POST, urlGetMesas, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {

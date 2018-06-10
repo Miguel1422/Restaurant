@@ -179,7 +179,7 @@ public class ControlProductos implements IControlEntidad<Producto> {
 
     private void burcarImagenJSON(final Producto producto, final Context context, final ImageView mImageView) {
         String tag_string_req = "req_image";
-        String imageUrl = AppConfig.URL_GET_PRODUCTO_IMAGE + "?id_producto=" + producto.getIdProducto();
+        String imageUrl = AppConfig.getInstance().getUrlGetProductoImage() + "?id_producto=" + producto.getIdProducto();
         final ImageUtils utils = new ImageUtils(context, IMAGE_DIRECTORY);
         StringRequest imageRequest = new StringRequest(Request.Method.POST, imageUrl, new Response.Listener<String>() {
             @Override

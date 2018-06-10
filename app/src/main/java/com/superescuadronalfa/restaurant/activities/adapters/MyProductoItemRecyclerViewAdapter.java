@@ -28,7 +28,7 @@ public class MyProductoItemRecyclerViewAdapter extends RecyclerView.Adapter<MyPr
     private final OnListFragmentInteractionListener mListener;
 
 
-    public MyProductoItemRecyclerViewAdapter(List<Producto> items, OnListFragmentInteractionListener listener) {
+    MyProductoItemRecyclerViewAdapter(List<Producto> items, OnListFragmentInteractionListener listener) {
         mValues = items;
         mListener = listener;
         mValuesFiltered = items;
@@ -108,12 +108,12 @@ public class MyProductoItemRecyclerViewAdapter extends RecyclerView.Adapter<MyPr
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        public final View mView;
-        public final ImageView mImageView;
-        public final TextView mContentView;
+        final View mView;
+        final ImageView mImageView;
+        final TextView mContentView;
         public Producto mItem;
 
-        public ViewHolder(View view) {
+        ViewHolder(View view) {
             super(view);
             mView = view;
             mImageView = view.findViewById(R.id.producto_photo);

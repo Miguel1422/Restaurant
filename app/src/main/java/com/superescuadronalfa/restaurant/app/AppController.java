@@ -1,6 +1,8 @@
 package com.superescuadronalfa.restaurant.app;
 
 import android.app.Application;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 
 import com.android.volley.DefaultRetryPolicy;
@@ -8,6 +10,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.Volley;
+import com.superescuadronalfa.restaurant.activities.SettingsActivity;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -30,6 +33,10 @@ public class AppController extends Application {
         mInstance = this;
 
 
+        // Initialize settings
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        String serverName = sharedPref.getString(SettingsActivity.KEY_SERVER_NAME, "local");
+        AppConfig.SERVER_ADRESS = serverName;
     }
 
     public RequestQueue getRequestQueue() {

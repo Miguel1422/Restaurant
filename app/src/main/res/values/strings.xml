@@ -32,4 +32,11 @@
     <string name="delete_cache">Update Images</string>
     <string name="buscar">Search</string>
     <string name="mesa"> Table</string>
+    <string name="title_activity_settings">Settings</string>
+    <string name="pref_header_general">General</string>
+    <string name="servidor">Server</string>
+    <string name="servidor_summary">Server</string>
+
+    <!-- Strings related to Settings -->
+
 </resources>

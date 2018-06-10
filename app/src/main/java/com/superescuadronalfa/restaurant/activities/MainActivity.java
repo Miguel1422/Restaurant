@@ -210,6 +210,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
             return true;
         }
 
@@ -248,7 +250,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void userLogged() {
         String tag_string_req = "req_mesas";
-        String urlGetMesas = AppConfig.URL_GET_MESAS;
+        String urlGetMesas = AppConfig.getInstance().getUrlGetMesas();
         StringRequest strReq = new StringRequest(Request.Method.POST, urlGetMesas, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
@@ -279,9 +281,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.e(TAG, "263 Login Error: " + error.getMessage());
+                Log.e(TAG, "Line 284 Login Error: " + error.getMessage());
                 Toast.makeText(getApplicationContext(), "Error no se cargo el contenido comprueba tu conexion " + (error.getMessage() != null ? error.getMessage() : error.toString()), Toast.LENGTH_LONG).show();
                 progressBar.setVisibility(View.GONE);
+                swipeLayout.setRefreshing(false);
             }
         }) {
             @Override
@@ -299,7 +302,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void loadImage(final Trabajador trabajador) {
         String tag_string_req = "req_image";
-        String imageUrl = AppConfig.URL_GET_TRABAJADOR_IMAGE + "?id_trabajador=" + trabajador.getIdTrabajador();
+        String imageUrl = AppConfig.getInstance().getUrlGetTrabajadorImage() + "?id_trabajador=" + trabajador.getIdTrabajador();
 
         final ImageUtils utils = new ImageUtils(MainActivity.this, "trabajadores");
 
@@ -341,6 +344,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             public void onErrorResponse(VolleyError error) {
                 Log.e(TAG, "322 Login Error:" + error.getMessage());
                 Toast.makeText(getApplicationContext(), "Error No se cargo la imagen comprueba tu conexion " + (error.getMessage() != null ? error.getMessage() : error.toString()), Toast.LENGTH_LONG).show();
+                progressBar.setVisibility(View.GONE);
+                swipeLayout.setRefreshing(false);
             }
         }) {
             @Override

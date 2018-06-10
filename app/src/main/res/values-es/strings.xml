@@ -33,4 +33,7 @@
     <string name="delete_cache">Actualizar Imágenes</string>
     <string name="buscar">Buscar</string>
     <string name="mesa"> Mesa</string>
+    <string name="pref_header_general">General</string>
+    <string name="servidor">Servidor</string>
+    <string name="servidor_summary">Nombre de la PC donde se encyejntra el sistema</string>
 </resources>
