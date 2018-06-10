@@ -10,6 +10,7 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -94,6 +95,16 @@ public class SectionsPagerAdapter extends FragmentStatePagerAdapter {
             return filter;
         }
 
+        public boolean isTablet() {
+            DisplayMetrics metrics = new DisplayMetrics();
+            getActivity().getWindowManager().getDefaultDisplay().getMetrics(metrics);
+
+            float yInches = metrics.heightPixels / metrics.ydpi;
+            float xInches = metrics.widthPixels / metrics.xdpi;
+            double diagonalInches = Math.sqrt(xInches * xInches + yInches * yInches);
+            return diagonalInches >= 6.5;
+        }
+
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_productos, container, false);
@@ -102,9 +113,9 @@ public class SectionsPagerAdapter extends FragmentStatePagerAdapter {
             RecyclerView rv = rootView.findViewById(R.id.rv);
             Context context = rv.getContext();
             if (AppController.getInstance().getResources().getConfiguration().orientation == ORIENTATION_LANDSCAPE)
-                rv.setLayoutManager(new GridLayoutManager(context, 3));
+                rv.setLayoutManager(new GridLayoutManager(context, 3 + (isTablet() ? 1 : 0)));
             else
-                rv.setLayoutManager(new GridLayoutManager(context, 2));
+                rv.setLayoutManager(new GridLayoutManager(context, 2 + (isTablet() ? 1 : 0)));
             ArrayList<Producto> productos = getArguments().getParcelableArrayList(ARG_SECTION_NUMBER);
             MyProductoItemRecyclerViewAdapter recyclerViewAdapter = new MyProductoItemRecyclerViewAdapter(productos, listener);
 
