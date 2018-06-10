@@ -145,7 +145,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                         User usuario = ControlUsers.getInstance().fromJSON(user);
                         Trabajador t = ControlTrabajadores.getInstance().fromJSON(user);
                         intent.putExtra(MainActivity.EXTRA_TRABAJADOR, t);
-                        Toast.makeText(getApplicationContext(), "Bienvenido " + t.getNombre(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), "Bienvenid@ " + t.getNombre(), Toast.LENGTH_SHORT).show();
                         startActivity(intent);
                         finish();
                     } else {
@@ -498,7 +498,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             showProgress(false);
 
             if (success != null) {
-                Toast.makeText(LoginActivity.this, "Bienvenido " + success.getNombre(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(LoginActivity.this, "Bienvenid@ " + success.getNombre(), Toast.LENGTH_SHORT).show();
                 Intent launchMainActivity = new Intent(getApplicationContext(), MainActivity.class);
                 launchMainActivity.putExtra(MainActivity.EXTRA_TRABAJADOR, trabajador);
                 startActivity(launchMainActivity);
