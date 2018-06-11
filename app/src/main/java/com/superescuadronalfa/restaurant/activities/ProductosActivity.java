@@ -130,6 +130,7 @@ public class ProductosActivity extends AppCompatActivity {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
+                if (progressBar.getVisibility() == View.VISIBLE) return false;
                 SectionsPagerAdapter.PlaceholderFragment o = (SectionsPagerAdapter.PlaceholderFragment) ((SectionsPagerAdapter) mViewPager.getAdapter()).getFragment(mViewPager); // WTF?
                 o.getFilter().filter(query);
                 return false;
@@ -137,6 +138,7 @@ public class ProductosActivity extends AppCompatActivity {
 
             @Override
             public boolean onQueryTextChange(String query) {
+                if (progressBar.getVisibility() == View.VISIBLE) return false;
                 // filter recycler view when text is changed
                 SectionsPagerAdapter.PlaceholderFragment o = (SectionsPagerAdapter.PlaceholderFragment) ((SectionsPagerAdapter) mViewPager.getAdapter()).getFragment(mViewPager);
                 o.getFilter().filter(query);
@@ -304,7 +306,8 @@ public class ProductosActivity extends AppCompatActivity {
                 } catch (JSONException e) {
                     // JSON error
                     e.printStackTrace();
-                    Toast.makeText(getApplicationContext(), "Json error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    // Toast.makeText(getApplicationContext(), "Json error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), "Error, no se ha podido conectar PHP  con la BD", Toast.LENGTH_LONG).show();
                 } finally {
                     progressBar.setVisibility(View.GONE);
                 }
@@ -314,7 +317,8 @@ public class ProductosActivity extends AppCompatActivity {
             public void onErrorResponse(VolleyError error) {
                 Log.e(TAG, "Login Error: " + error.getMessage());
                 Toast.makeText(getApplicationContext(), "Error no se pudo crear el pedido comprueba tu conexion " + (error.getMessage() != null ? error.getMessage() : error.toString()), Toast.LENGTH_LONG).show();
-                finish();
+                progressBar.setVisibility(View.GONE);
+
             }
         }) {
             @Override
@@ -422,9 +426,9 @@ public class ProductosActivity extends AppCompatActivity {
                 } catch (JSONException e) {
                     // JSON error
                     e.printStackTrace();
-                    Toast.makeText(getApplicationContext(), "Json error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), "Error, no se ha podido conectar PHP  con la BD", Toast.LENGTH_LONG).show();
+                    // Toast.makeText(getApplicationContext(), "Json error: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 } finally {
-
                     progressBar.setVisibility(View.GONE);
                 }
             }
@@ -433,6 +437,8 @@ public class ProductosActivity extends AppCompatActivity {
             public void onErrorResponse(VolleyError error) {
                 Log.e(TAG, "Error, comprueba tu conexion: " + error.getMessage());
                 Toast.makeText(getApplicationContext(), "Error no se pudoo cargar el contenido comprueba tu conexion " + (error.getMessage() != null ? error.getMessage() : error.toString()), Toast.LENGTH_LONG).show();
+                progressBar.setVisibility(View.GONE);
+                finish();
             }
         }) {
             // Se tiene que gacer pos post porque en los comentarions se puede agregar cosas raras

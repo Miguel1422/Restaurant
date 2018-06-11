@@ -8,9 +8,11 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -42,6 +44,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static android.content.res.Configuration.ORIENTATION_LANDSCAPE;
+
 public class PedidosActivity extends AppCompatActivity {
     public static final String EXTRA_MESA = "com.superescuadronalfa.restaurant.ID_MESA";
     private static final String TAG = PedidosActivity.class.getSimpleName();
@@ -53,6 +57,16 @@ public class PedidosActivity extends AppCompatActivity {
     private MyPedidosItemRecyclerViewAdapter adap;
     private FloatingActionButton fab;
     private SwipeRefreshLayout swipeLayout;
+
+    public boolean isTablet() {
+        DisplayMetrics metrics = new DisplayMetrics();
+        this.getWindowManager().getDefaultDisplay().getMetrics(metrics);
+
+        float yInches = metrics.heightPixels / metrics.ydpi;
+        float xInches = metrics.widthPixels / metrics.xdpi;
+        double diagonalInches = Math.sqrt(xInches * xInches + yInches * yInches);
+        return diagonalInches >= 6.5;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,7 +92,12 @@ public class PedidosActivity extends AppCompatActivity {
 
 
         rv = findViewById(R.id.rv);
-        LinearLayoutManager llm = new LinearLayoutManager(this);
+        //LinearLayoutManager llm = new LinearLayoutManager(this);
+        RecyclerView.LayoutManager llm;
+        if (isTablet() && getResources().getConfiguration().orientation == ORIENTATION_LANDSCAPE)
+            llm = new GridLayoutManager(this, 2);
+        else
+            llm = new LinearLayoutManager(this);
         rv.setLayoutManager(llm);
         rv.setHasFixedSize(true);
 
@@ -171,7 +190,10 @@ public class PedidosActivity extends AppCompatActivity {
                 } catch (JSONException e) {
                     // JSON error
                     e.printStackTrace();
-                    Toast.makeText(getApplicationContext(), "Json error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), "Error, no se ha podido conectar PHP  con la BD", Toast.LENGTH_LONG).show();
+                    // Toast.makeText(getApplicationContext(), "Json error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    // Toast.makeText(getApplicationContext(), "Error, no se ha podido conectar PHP  con la BD", Toast.LENGTH_LONG).show();
+
                 } finally {
                     progressBar.setVisibility(View.GONE);
                     swipeLayout.setRefreshing(false);
@@ -229,7 +251,8 @@ public class PedidosActivity extends AppCompatActivity {
                 } catch (JSONException e) {
                     // JSON error
                     e.printStackTrace();
-                    Toast.makeText(getApplicationContext(), "Json error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), "Error, no se ha podido conectar PHP  con la BD", Toast.LENGTH_LONG).show();
+                    // Toast.makeText(getApplicationContext(), "Json error: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 } finally {
                     progressBar.setVisibility(View.GONE);
                 }
@@ -277,7 +300,8 @@ public class PedidosActivity extends AppCompatActivity {
                 } catch (JSONException e) {
                     // JSON error
                     e.printStackTrace();
-                    Toast.makeText(getApplicationContext(), "Json error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), "Error, no se ha podido conectar PHP  con la BD", Toast.LENGTH_LONG).show();
+                    // Toast.makeText(getApplicationContext(), "Json error: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 } finally {
                     progressBar.setVisibility(View.GONE);
                 }
@@ -433,7 +457,8 @@ public class PedidosActivity extends AppCompatActivity {
                 } catch (JSONException e) {
                     // JSON error
                     e.printStackTrace();
-                    Toast.makeText(getApplicationContext(), "Json error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    // Toast.makeText(getApplicationContext(), "Json error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), "Error, no se ha podido conectar PHP  con la BD", Toast.LENGTH_LONG).show();
                 } finally {
                     progressBar.setVisibility(View.GONE);
                 }

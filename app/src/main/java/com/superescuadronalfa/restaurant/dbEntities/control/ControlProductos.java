@@ -204,7 +204,8 @@ public class ControlProductos implements IControlEntidad<Producto> {
                 } catch (JSONException e) {
                     // JSON error
                     e.printStackTrace();
-                    Toast.makeText(context, "Json error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    //Toast.makeText(context, "Json error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(context, "Error, no se ha podido conectar PHP  con la BD", Toast.LENGTH_LONG).show();
                 }
             }
         }, new Response.ErrorListener() {
