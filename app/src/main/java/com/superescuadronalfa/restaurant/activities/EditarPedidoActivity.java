@@ -176,7 +176,6 @@ public class EditarPedidoActivity extends AppCompatActivity {
             public void onErrorResponse(VolleyError error) {
                 Log.e(TAG, "Error, comprueba tu conexion: " + error.getMessage());
                 Toast.makeText(getApplicationContext(), "Error, No se edito el pedido comprueba tu conexion " + (error.getMessage() != null ? error.getMessage() : error.toString()), Toast.LENGTH_LONG).show();
-                finish();
             }
         }) {
             // Se tiene que gacer pos post porque en los comentarions se puede agregar cosas raras
