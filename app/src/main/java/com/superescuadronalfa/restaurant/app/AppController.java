@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 
-import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.HurlStack;
@@ -45,7 +44,7 @@ public class AppController extends Application {
                 @Override
                 protected HttpURLConnection createConnection(URL url) throws IOException {
                     final HttpURLConnection httpURLConnection = super.createConnection(url);
-                    httpURLConnection.setChunkedStreamingMode(0);   // Force no retry for HTTP POST. https://stackoverflow.com/a/31125618/1402846
+                    // httpURLConnection.setChunkedStreamingMode(0);   // Force no retry for HTTP POST. https://stackoverflow.com/a/31125618/1402846
                     return httpURLConnection;
                 }
             });
@@ -57,10 +56,12 @@ public class AppController extends Application {
     public <T> void addToRequestQueue(Request<T> req, String tag) {
         if (AppConfig.USE_CONNECTOR)
             throw new RuntimeException("No se puede usar cuando tienes el conector activado");
+        /*
         req.setRetryPolicy(new DefaultRetryPolicy(
                 DefaultRetryPolicy.DEFAULT_TIMEOUT_MS * 2,
                 0,
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+                */
         req.setTag(TextUtils.isEmpty(tag) ? TAG : tag);
         getRequestQueue().add(req);
     }

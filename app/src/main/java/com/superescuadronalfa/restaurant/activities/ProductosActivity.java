@@ -217,7 +217,7 @@ public class ProductosActivity extends AppCompatActivity {
         }
     }
 
-    private void showVariantes(Producto p) {
+    private void showVariantes(final Producto p) {
         if (p.getTipoProductos().size() < 1) {
             Toast.makeText(getApplicationContext(), "El producto seleccionado no tiene tamaños, consulte al administrador para agregarlos", Toast.LENGTH_LONG).show();
             return;
@@ -244,7 +244,7 @@ public class ProductosActivity extends AppCompatActivity {
                     agregarProducto(tipos[0], true);
 
                 } else {
-                    agregarProductoPHP(tipos[0], true);
+                    agregarProductoPersonalizado(p);
                 }
             }
         });
@@ -257,7 +257,7 @@ public class ProductosActivity extends AppCompatActivity {
                 if (AppConfig.USE_CONNECTOR)
                     agregarProducto(tipos[which], false);
                 else {
-                    agregarProductoPHP(tipos[which], false);
+                    agregarProductoPHP(tipos[which]);
                 }
                 // Toast.makeText(getApplicationContext(), tipos[which].getNombreTipo() + " pressed", Toast.LENGTH_SHORT).show();
                 dialog.dismiss();
@@ -270,11 +270,19 @@ public class ProductosActivity extends AppCompatActivity {
 
     }
 
-    private void agregarProductoPHP(final TipoProducto tipo, final boolean pedidoPersonalizado) {
+    private void agregarProductoPersonalizado(Producto p) {
+        Intent i = new Intent(this, AgregarPedido.class);
+        i.putExtra(AgregarPedido.EXTRA_ORDEN, ordenActual);
+        i.putExtra(AgregarPedido.EXTRA_PRODUCTO, p);
+        startActivity(i);
+    }
+
+    private void agregarProductoPHP(final TipoProducto tipo) {
         if (ordenActual == null) {
             Toast.makeText(getApplicationContext(), "Error no se pudo crear el pedido comprueba tu conexion ", Toast.LENGTH_LONG).show();
             finish();
         }
+
         final OrdenProducto op = new OrdenProducto(0, ordenActual, tipo, tipo.getPrecioTipo(), 1, "", "En cola");
         String tag_string_req = "req_pedidos";
         String urlGetMesas = AppConfig.getInstance().getUrlAddPedido();
@@ -289,14 +297,6 @@ public class ProductosActivity extends AppCompatActivity {
                     // Check for error node in json
                     if (!error) {
                         Toast.makeText(getApplicationContext(), "Agregado", Toast.LENGTH_LONG).show();
-
-
-                        if (pedidoPersonalizado) {
-                            OrdenProducto po = ControlOrdenProducto.getInstance().fromJSON(jObj.getJSONObject("pedido_agregado"));
-                            Intent intent = new Intent(getApplicationContext(), EditarPedidoActivity.class);
-                            intent.putExtra(EditarPedidoActivity.EXTRA_PEDIDO, po);
-                            startActivity(intent);
-                        }
                     } else {
 
                         // Error  Get the error message

@@ -436,7 +436,7 @@ public class PedidosActivity extends AppCompatActivity {
     private void cambiarEstado(final OrdenProducto nuevo, String estado) {
         nuevo.setStatus(estado);
         String tag_string_req = "req_editar_pedido";
-        String urlGetMesas = AppConfig.getInstance().getUrlEditarPedido();
+        String urlGetMesas = AppConfig.getInstance().getUrlEditarPedidoStatus();
         StringRequest strReq = new StringRequest(Request.Method.POST, urlGetMesas, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
@@ -477,10 +477,6 @@ public class PedidosActivity extends AppCompatActivity {
                 Map<String, String> params = new HashMap<>();
                 params.put("api_key", new SessionManager(getApplicationContext()).getApiKey());
                 params.put("id_orden_producto", "" + nuevo.getIdOrdenProducto());
-                params.put("id_tipo_producto", "" + nuevo.getTipoProducto().getIdTipoProducto());
-                params.put("id_variantes", listVariantesToString(nuevo.getVariantesDeLaOrden()));
-                params.put("cantidad", "" + nuevo.getCantidad());
-                params.put("comentarios", "" + nuevo.getComentarios());
                 params.put("status", "" + nuevo.getStatus());
                 return params;
             }

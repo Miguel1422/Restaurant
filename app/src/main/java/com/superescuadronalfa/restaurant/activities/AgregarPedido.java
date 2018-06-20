@@ -1,7 +1,6 @@
 package com.superescuadronalfa.restaurant.activities;
 
 import android.annotation.SuppressLint;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -24,11 +23,11 @@ import com.superescuadronalfa.restaurant.R;
 import com.superescuadronalfa.restaurant.activities.adapters.MyVairanteItemRecyclerViewAdapter;
 import com.superescuadronalfa.restaurant.app.AppConfig;
 import com.superescuadronalfa.restaurant.app.AppController;
+import com.superescuadronalfa.restaurant.dbEntities.Orden;
 import com.superescuadronalfa.restaurant.dbEntities.OrdenProducto;
 import com.superescuadronalfa.restaurant.dbEntities.Producto;
 import com.superescuadronalfa.restaurant.dbEntities.ProductoVariante;
 import com.superescuadronalfa.restaurant.dbEntities.TipoProducto;
-import com.superescuadronalfa.restaurant.dbEntities.control.ControlOrdenProducto;
 import com.superescuadronalfa.restaurant.dbEntities.control.ControlTipoProducto;
 import com.superescuadronalfa.restaurant.helper.SessionManager;
 
@@ -39,31 +38,36 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class EditarPedidoActivity extends AppCompatActivity {
-
-    public static final String EXTRA_PEDIDO = "com.superescuadronalfa.restaurant.EXTRA_PEDIDO";
+public class AgregarPedido extends AppCompatActivity {
+    public static final String EXTRA_ORDEN = "com.superescuadronalfa.restaurant.EXTRA_ORDEN";
+    public static final String EXTRA_PRODUCTO = "com.superescuadronalfa.restaurant.EXTRA_PRODUCTO";
     private static final String TAG = EditarPedidoActivity.class.getSimpleName();
-    private OrdenProducto pedido;
     private Spinner spinner;
     private Spinner spinnerCan;
     private ProgressBar progressBar;
     private RecyclerView listVariantes;
     private EditText txtComentarios;
 
+    private Orden orden;
+    private Producto producto;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_editar_pedido);
+        setContentView(R.layout.activity_agregar_pedido);
+
         Bundle extras = getIntent().getExtras();
 
-        pedido = extras.getParcelable(EXTRA_PEDIDO);
-
-        if (pedido == null) {
+        orden = extras.getParcelable(EXTRA_ORDEN);
+        producto = extras.getParcelable(EXTRA_PRODUCTO);
+        if (orden == null || producto == null) {
             Toast.makeText(getApplicationContext(), "No se ha cargado la informacion del pedido", Toast.LENGTH_LONG).show();
             Log.d("Error", "No se ha cargado la informacion del pedido");
             finish();
             return;
         }
+
+
         spinner = findViewById(R.id.spinner);
         spinnerCan = findViewById(R.id.spinnerCan);
 
@@ -74,62 +78,84 @@ public class EditarPedidoActivity extends AppCompatActivity {
         listVariantes = findViewById(R.id.rv);
         txtComentarios = findViewById(R.id.editText2);
 
-        txtComentarios.setText(pedido.getComentarios());
 
         if (AppConfig.USE_CONNECTOR) {
-            new LoadContent().execute();
+
         } else {
-            loadContent(pedido.getTipoProducto().getProducto());
+            loadContent(producto);
         }
     }
 
 
     @SuppressLint("StaticFieldLeak")
     public void btnAceptarClick(View v) {
-        if (progressBar.getVisibility() == View.VISIBLE) return;
-        setResult(RESULT_OK);
+        agregarProductoPHP();
+    }
+
+    private void agregarProductoPHP() {
+        if (orden == null) {
+            Toast.makeText(getApplicationContext(), "Error no se pudo crear el pedido comprueba tu conexion ", Toast.LENGTH_LONG).show();
+            finish();
+        }
         MyVairanteItemRecyclerViewAdapter adapter = (MyVairanteItemRecyclerViewAdapter) listVariantes.getAdapter();
 
-        if (txtComentarios.getText().toString().length() >= 255) {
-            Toast.makeText(EditarPedidoActivity.this, "Ese si que es un comentario largo, necesitas hacerlo mas corto :(", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        final OrdenProducto nuevo =
-                new OrdenProducto(
-                        pedido.getIdOrdenProducto(),
-                        pedido.getOrden(),
-                        ((TipoProducto) spinner.getSelectedItem()),
-                        pedido.getPrecio(),
-                        ((Integer) spinnerCan.getSelectedItem()),
-                        txtComentarios.getText().toString(),
-                        pedido.getStatus());
+        TipoProducto tipo = ((TipoProducto) spinner.getSelectedItem());
+        final OrdenProducto op = new OrdenProducto(0, orden, tipo, tipo.getPrecioTipo(), ((Integer) spinnerCan.getSelectedItem()), txtComentarios.getText().toString(), "En cola");
+        op.setVariantesDeLaOrden(adapter.getSelectedItems());
 
-        nuevo.setVariantesDeLaOrden(adapter.getSelectedItems());
+        String tag_string_req = "req_pedidos";
+        String urlGetMesas = AppConfig.getInstance().getUrlAddPedido();
+        StringRequest strReq = new StringRequest(Request.Method.POST, urlGetMesas, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                Log.d(TAG, "Login Response: " + response.toString());
+                try {
+                    JSONObject jObj = new JSONObject(response);
+                    boolean error = jObj.getBoolean("error");
 
-        progressBar.setVisibility(View.VISIBLE);
-        if (AppConfig.USE_CONNECTOR) {
-            new AsyncTask<Void, Void, Boolean>() {
-                @Override
-                protected Boolean doInBackground(Void... voids) {
-                    return ControlOrdenProducto.getInstance().editar(nuevo);
-                }
-
-                @Override
-                protected void onPostExecute(Boolean aBoolean) {
-                    super.onPostExecute(aBoolean);
-                    if (aBoolean) {
-
-                        Toast.makeText(EditarPedidoActivity.this, "Exito", Toast.LENGTH_SHORT).show();
+                    // Check for error node in json
+                    if (!error) {
+                        Toast.makeText(getApplicationContext(), "Agregado", Toast.LENGTH_LONG).show();
                         finish();
                     } else {
-                        Toast.makeText(EditarPedidoActivity.this, "Error comprueba tu conexion", Toast.LENGTH_LONG).show();
-                    }
-                }
-            }.execute();
-        } else {
-            editarPedido(nuevo);
-        }
 
+                        // Error  Get the error message
+                        String errorMsg = jObj.getString("error_msg");
+                        Toast.makeText(getApplicationContext(), "Error " + errorMsg, Toast.LENGTH_LONG).show();
+                    }
+                } catch (JSONException e) {
+                    // JSON error
+                    e.printStackTrace();
+                    // Toast.makeText(getApplicationContext(), "Json error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), "Error, no se ha podido conectar PHP  con la BD", Toast.LENGTH_LONG).show();
+                } finally {
+                    progressBar.setVisibility(View.GONE);
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e(TAG, "Login Error: " + error.getMessage());
+                Toast.makeText(getApplicationContext(), "Error no se pudo crear el pedido comprueba tu conexion " + (error.getMessage() != null ? error.getMessage() : error.toString()), Toast.LENGTH_LONG).show();
+                progressBar.setVisibility(View.GONE);
+
+            }
+        }) {
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<>();
+                params.put("api_key", new SessionManager(getApplicationContext()).getApiKey());
+                params.put("id_orden", op.getOrden().getIdOrden() + "");
+                params.put("id_tipo_producto", op.getTipoProducto().getIdTipoProducto() + "");
+                params.put("id_variantes", listVariantesToString(op.getVariantesDeLaOrden()));
+                params.put("cantidad", op.getCantidad() + "");
+                params.put("comentarios", op.getComentarios());
+                return params;
+            }
+        };
+
+        // Adding request to request queue
+        AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
     }
 
     private String listVariantesToString(List<ProductoVariante> variantesList) {
@@ -142,65 +168,8 @@ public class EditarPedidoActivity extends AppCompatActivity {
     }
 
 
-    private void editarPedido(final OrdenProducto nuevo) {
-        String tag_string_req = "req_editar_pedido";
-        String urlGetMesas = AppConfig.getInstance().getUrlEditarPedido();
-        StringRequest strReq = new StringRequest(Request.Method.POST, urlGetMesas, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                Log.d(TAG, "Login Response: " + response.toString());
-                try {
-                    JSONObject jObj = new JSONObject(response);
-                    boolean error = jObj.getBoolean("error");
-
-                    // Check for error node in json
-                    if (!error) {
-                        Toast.makeText(getApplicationContext(), "Orden editada", Toast.LENGTH_SHORT).show();
-                        finish();
-                    } else {
-                        String errorMsg = jObj.getString("error_msg");
-                        Toast.makeText(getApplicationContext(), "Error " + errorMsg, Toast.LENGTH_LONG).show();
-                        finish();
-                    }
-                } catch (JSONException e) {
-                    // JSON error
-                    e.printStackTrace();
-                    Toast.makeText(getApplicationContext(), "Error, no se ha podido conectar PHP  con la BD", Toast.LENGTH_LONG).show();
-                    //Toast.makeText(getApplicationContext(), "Json error: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                } finally {
-                    progressBar.setVisibility(View.GONE);
-                }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.e(TAG, "Error, comprueba tu conexion: " + error.getMessage());
-                Toast.makeText(getApplicationContext(), "Error, No se edito el pedido comprueba tu conexion " + (error.getMessage() != null ? error.getMessage() : error.toString()), Toast.LENGTH_LONG).show();
-            }
-        }) {
-            // Se tiene que gacer pos post porque en los comentarions se puede agregar cosas raras
-            @Override
-            protected Map<String, String> getParams() {
-                Map<String, String> params = new HashMap<>();
-                params.put("api_key", new SessionManager(getApplicationContext()).getApiKey());
-                params.put("id_orden_producto", "" + nuevo.getIdOrdenProducto());
-                params.put("id_orden", "" + pedido.getOrden().getIdOrden());
-                params.put("id_tipo_producto", "" + nuevo.getTipoProducto().getIdTipoProducto());
-                params.put("id_variantes", listVariantesToString(nuevo.getVariantesDeLaOrden()));
-                params.put("cantidad", "" + nuevo.getCantidad());
-                params.put("comentarios", "" + nuevo.getComentarios());
-                params.put("status", "" + nuevo.getStatus());
-                return params;
-            }
-        };
-
-        // Adding request to request queue
-        AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
-    }
-
-
     private void initializeAdapter(List<TipoProducto> tipos) {
-        ArrayAdapter<TipoProducto> adapter = new ArrayAdapter<>(EditarPedidoActivity.this, android.R.layout.simple_dropdown_item_1line, tipos);
+        ArrayAdapter<TipoProducto> adapter = new ArrayAdapter<>(AgregarPedido.this, android.R.layout.simple_dropdown_item_1line, tipos);
         spinner.setAdapter(adapter);
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -214,8 +183,7 @@ public class EditarPedidoActivity extends AppCompatActivity {
             }
         });
 
-        int idSelected = adapter.getPosition(pedido.getTipoProducto());
-        spinner.setSelection(idSelected);
+        spinner.setSelection(0);
 
 
         // Cantidad para el otro spinner
@@ -224,13 +192,13 @@ public class EditarPedidoActivity extends AppCompatActivity {
             items[i] = i + 1;
         }
 
-        ArrayAdapter<Integer> adapter2 = new ArrayAdapter<>(EditarPedidoActivity.this, android.R.layout.simple_list_item_1, items);
+        ArrayAdapter<Integer> adapter2 = new ArrayAdapter<>(AgregarPedido.this, android.R.layout.simple_list_item_1, items);
         spinnerCan.setAdapter(adapter2);
 
-        spinnerCan.setSelection(adapter2.getPosition(pedido.getCantidad()));
+        spinnerCan.setSelection(0);
 
 
-        listVariantes.setLayoutManager(new LinearLayoutManager(EditarPedidoActivity.this));
+        listVariantes.setLayoutManager(new LinearLayoutManager(AgregarPedido.this));
         listVariantes.setHasFixedSize(true);
     }
 
@@ -242,9 +210,6 @@ public class EditarPedidoActivity extends AppCompatActivity {
             }
         });
 
-        if (tipoProducto.equals(pedido.getTipoProducto())) {
-            adapter.setSelectedItems(pedido.getVariantesDeLaOrden());
-        }
         listVariantes.setAdapter(adapter);
     }
 
@@ -298,30 +263,4 @@ public class EditarPedidoActivity extends AppCompatActivity {
         // Adding request to request queue
         AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
     }
-
-    private class LoadContent extends AsyncTask<Void, Void, Boolean> {
-
-        private List<TipoProducto> tipos;
-
-        @Override
-        protected Boolean doInBackground(Void... voids) {
-            pedido.getTipoProducto().getProducto();
-            tipos = ControlTipoProducto.getInstance().getLista(pedido.getTipoProducto().getProducto());
-            return tipos != null;
-        }
-
-        @Override
-        protected void onPostExecute(Boolean aBoolean) {
-            super.onPostExecute(aBoolean);
-
-            if (aBoolean) {
-                initializeAdapter(tipos);
-            } else {
-                Toast.makeText(EditarPedidoActivity.this, "Comprueba tu conexion", Toast.LENGTH_LONG).show();
-            }
-
-            progressBar.setVisibility(View.GONE);
-        }
-    }
-
 }

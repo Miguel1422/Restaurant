@@ -12,8 +12,10 @@ public class AppConfig {
     private String URL_GET_TRABAJADOR_IMAGE = "http://%s/restaurantwrapper/api/get_trabajador_image.php";
     private String URL_DELETE_PEDIDO = "http://%s/restaurantwrapper/api/delete_pedido.php";
     private String URL_EDITAR_PEDIDO = "http://%s/restaurantwrapper/api/edit_pedido.php";
+    private String URL_EDITAR_PEDIDO_STATUS = "http://%s/restaurantwrapper/api/edit_pedido_state.php";
     private String URL_GET_TIPOS = "http://%s/restaurantwrapper/api/get_lista_tipos.php";
     private String URL_GET_PRODUCTOS = "http://%s/restaurantwrapper/api/get_productos.php";
+
 
 
     public static final boolean USE_CONNECTOR = false;
@@ -61,6 +63,10 @@ public class AppConfig {
 
     public String getUrlEditarPedido() {
         return String.format(URL_EDITAR_PEDIDO, SERVER_ADRESS);
+    }
+
+    public String getUrlEditarPedidoStatus() {
+        return String.format(URL_EDITAR_PEDIDO_STATUS, SERVER_ADRESS);
     }
 
     public String getUrlGetTipos() {
