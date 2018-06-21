@@ -13,6 +13,13 @@
         android:singleLine="true"
         android:summary="@string/servidor_summary"
         android:title="@string/servidor" />
+    <PreferenceCategory android:title="Pedidos">
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="mostrar_categoria_pedido"
+            android:summary="@string/pref_mostrar"
+            android:title="Mostrar categoria en pedidos" />
+    </PreferenceCategory>
 
 
 </PreferenceScreen>

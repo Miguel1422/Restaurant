@@ -37,6 +37,9 @@ public class AppController extends Application {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         String serverName = sharedPref.getString(SettingsActivity.KEY_SERVER_NAME, "local");
         AppConfig.SERVER_ADRESS = serverName;
+
+        Boolean showCategory = sharedPref.getBoolean(SettingsActivity.KEY_MOSTRAR_CATEGORIA_PEDIDO, true);
+        AppConfig.MOSTRAR_CATEGORIA = showCategory;
     }
 
     public RequestQueue getRequestQueue() {

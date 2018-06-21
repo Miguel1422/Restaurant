@@ -12,6 +12,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.superescuadronalfa.restaurant.R;
+import com.superescuadronalfa.restaurant.app.AppConfig;
 import com.superescuadronalfa.restaurant.dbEntities.OrdenProducto;
 
 import java.util.List;
@@ -43,9 +44,14 @@ public class MyPedidosItemRecyclerViewAdapter extends RecyclerView.Adapter<MyPed
     public void onBindViewHolder(final ViewHolder holder, @SuppressLint("RecyclerView") final int position) {
         holder.mItem = mValues.get(position);
         // holder.mImageView.setImageBitmap(mValues.get(position).getImage());
-
-        String content = "[" + mValues.get(position).getTipoProducto().getProducto().getCategoriaProducto().getNombreCategoria() + "] " + mValues.get(position).getTipoProducto().getProducto().getNombreProducto() + ", "
-                + mValues.get(position).getTipoProducto().getNombreTipo();
+        String content;
+        if (AppConfig.MOSTRAR_CATEGORIA) {
+            content = "[" + mValues.get(position).getTipoProducto().getProducto().getCategoriaProducto().getNombreCategoria() + "] " + mValues.get(position).getTipoProducto().getProducto().getNombreProducto() + ", "
+                    + mValues.get(position).getTipoProducto().getNombreTipo();
+        } else {
+            content = mValues.get(position).getTipoProducto().getProducto().getNombreProducto() + ", "
+                    + mValues.get(position).getTipoProducto().getNombreTipo();
+        }
         holder.mContentView.setText(content);
         holder.mDescriptionView.setText(mValues.get(position).getComentarios());
         holder.mCantidadView.setText(("Cnt: " + mValues.get(position).getCantidad()));

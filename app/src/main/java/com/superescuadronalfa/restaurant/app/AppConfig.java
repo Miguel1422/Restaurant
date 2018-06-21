@@ -3,6 +3,7 @@ package com.superescuadronalfa.restaurant.app;
 public class AppConfig {
 
     public static String SERVER_ADRESS;
+    public static boolean MOSTRAR_CATEGORIA;
     private static AppConfig instance;
     private String URL_ADD_ORDEN = "http://%s/restaurantwrapper/api/add_orden.php";
     private String URL_ADD_PEDIDO = "http://%s/restaurantwrapper/api/add_pedido.php";

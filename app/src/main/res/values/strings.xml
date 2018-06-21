@@ -34,6 +34,7 @@
     <string name="servidor_summary">Server</string>
     <string name="opciones">Options</string>
     <string name="exit">Exit</string>
+    <string name="pref_mostrar"> Mostrar el nombre de la categoria en la pantalla de pedidos</string>
 
     <!-- Strings related to Settings -->
 

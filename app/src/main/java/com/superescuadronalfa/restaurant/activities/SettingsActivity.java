@@ -38,6 +38,7 @@ import java.util.List;
 public class SettingsActivity extends AppCompatPreferenceActivity {
 
     public static final String KEY_SERVER_NAME = "server_name";
+    public static final String KEY_MOSTRAR_CATEGORIA_PEDIDO = "mostrar_categoria_pedido";
     /**
      * A preference value change listener that updates the preference's summary
      * to reflect its new value.
@@ -86,8 +87,11 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                 // simple string representation.
                 if (preference.hasKey() && preference.getKey().equals(KEY_SERVER_NAME)) {
                     AppConfig.SERVER_ADRESS = stringValue;
+                    preference.setSummary(stringValue);
+                } else if (preference.hasKey() && preference.getKey().equals(KEY_MOSTRAR_CATEGORIA_PEDIDO)) {
+                    AppConfig.MOSTRAR_CATEGORIA = Boolean.parseBoolean(stringValue);
                 }
-                preference.setSummary(stringValue);
+
             }
             return true;
         }
@@ -117,10 +121,17 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
         // Trigger the listener immediately with the preference's
         // current value.
-        sBindPreferenceSummaryToValueListener.onPreferenceChange(preference,
-                PreferenceManager
-                        .getDefaultSharedPreferences(preference.getContext())
-                        .getString(preference.getKey(), ""));
+        if (preference.hasKey() && preference.getKey().equals(KEY_MOSTRAR_CATEGORIA_PEDIDO)) {
+            sBindPreferenceSummaryToValueListener.onPreferenceChange(preference,
+                    PreferenceManager
+                            .getDefaultSharedPreferences(preference.getContext())
+                            .getBoolean(preference.getKey(), true));
+        } else {
+            sBindPreferenceSummaryToValueListener.onPreferenceChange(preference,
+                    PreferenceManager
+                            .getDefaultSharedPreferences(preference.getContext())
+                            .getString(preference.getKey(), ""));
+        }
     }
 
     @Override
@@ -182,7 +193,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             // to their values. When their values change, their summaries are
             // updated to reflect the new value, per the Android Design
             // guidelines.
-            bindPreferenceSummaryToValue(findPreference("server_name"));
+            bindPreferenceSummaryToValue(findPreference(KEY_SERVER_NAME));
+            bindPreferenceSummaryToValue(findPreference(KEY_MOSTRAR_CATEGORIA_PEDIDO));
         }
 
         @Override
