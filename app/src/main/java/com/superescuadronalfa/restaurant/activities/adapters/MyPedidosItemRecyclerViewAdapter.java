@@ -43,7 +43,8 @@ public class MyPedidosItemRecyclerViewAdapter extends RecyclerView.Adapter<MyPed
     public void onBindViewHolder(final ViewHolder holder, @SuppressLint("RecyclerView") final int position) {
         holder.mItem = mValues.get(position);
         // holder.mImageView.setImageBitmap(mValues.get(position).getImage());
-        String content = mValues.get(position).getTipoProducto().getProducto().getNombreProducto() + " "
+
+        String content = "[" + mValues.get(position).getTipoProducto().getProducto().getCategoriaProducto().getNombreCategoria() + "] " + mValues.get(position).getTipoProducto().getProducto().getNombreProducto() + ", "
                 + mValues.get(position).getTipoProducto().getNombreTipo();
         holder.mContentView.setText(content);
         holder.mDescriptionView.setText(mValues.get(position).getComentarios());
