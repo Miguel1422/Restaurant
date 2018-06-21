@@ -38,6 +38,7 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 public class EditarPedidoActivity extends AppCompatActivity {
 
@@ -145,6 +146,15 @@ public class EditarPedidoActivity extends AppCompatActivity {
     private void editarPedido(final OrdenProducto nuevo) {
         String tag_string_req = "req_editar_pedido";
         String urlGetMesas = AppConfig.getInstance().getUrlEditarPedido();
+
+        Random r = new Random();
+        StringBuilder uid = new StringBuilder();
+        for (int i = 0; i < 15; i++) {
+            char rnad = (char) (r.nextInt(26) + 'A');
+            uid.append(rnad);
+        }
+        final String finalUid = uid.toString();
+
         StringRequest strReq = new StringRequest(Request.Method.POST, urlGetMesas, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
@@ -190,6 +200,7 @@ public class EditarPedidoActivity extends AppCompatActivity {
                 params.put("cantidad", "" + nuevo.getCantidad());
                 params.put("comentarios", "" + nuevo.getComentarios());
                 params.put("status", "" + nuevo.getStatus());
+                params.put("uid", finalUid);
                 return params;
             }
         };
