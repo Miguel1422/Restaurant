@@ -37,6 +37,7 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 public class AgregarPedido extends AppCompatActivity {
     public static final String EXTRA_ORDEN = "com.superescuadronalfa.restaurant.EXTRA_ORDEN";
@@ -103,6 +104,14 @@ public class AgregarPedido extends AppCompatActivity {
         final OrdenProducto op = new OrdenProducto(0, orden, tipo, tipo.getPrecioTipo(), ((Integer) spinnerCan.getSelectedItem()), txtComentarios.getText().toString(), "En cola");
         op.setVariantesDeLaOrden(adapter.getSelectedItems());
 
+        Random r = new Random();
+        StringBuilder uid = new StringBuilder();
+        for (int i = 0; i < 15; i++) {
+            char rnad = (char) (r.nextInt(26) + 'A');
+            uid.append(rnad);
+        }
+        final String finalUid = uid.toString();
+
         String tag_string_req = "req_pedidos";
         String urlGetMesas = AppConfig.getInstance().getUrlAddPedido();
         StringRequest strReq = new StringRequest(Request.Method.POST, urlGetMesas, new Response.Listener<String>() {
@@ -150,6 +159,7 @@ public class AgregarPedido extends AppCompatActivity {
                 params.put("id_variantes", listVariantesToString(op.getVariantesDeLaOrden()));
                 params.put("cantidad", op.getCantidad() + "");
                 params.put("comentarios", op.getComentarios());
+                params.put("uid", finalUid);
                 return params;
             }
         };
@@ -264,3 +274,4 @@ public class AgregarPedido extends AppCompatActivity {
         AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
     }
 }
+

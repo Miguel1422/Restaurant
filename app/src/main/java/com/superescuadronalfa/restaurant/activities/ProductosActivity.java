@@ -46,6 +46,7 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 public class ProductosActivity extends AppCompatActivity {
 
@@ -283,9 +284,18 @@ public class ProductosActivity extends AppCompatActivity {
             finish();
         }
 
+        Random r = new Random();
+        StringBuilder uid = new StringBuilder();
+        for (int i = 0; i < 15; i++) {
+            char rnad = (char) (r.nextInt(26) + 'A');
+            uid.append(rnad);
+        }
+        final String finalUid = uid.toString();
         final OrdenProducto op = new OrdenProducto(0, ordenActual, tipo, tipo.getPrecioTipo(), 1, "", "En cola");
         String tag_string_req = "req_pedidos";
         String urlGetMesas = AppConfig.getInstance().getUrlAddPedido();
+
+
         StringRequest strReq = new StringRequest(Request.Method.POST, urlGetMesas, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
@@ -330,6 +340,7 @@ public class ProductosActivity extends AppCompatActivity {
                 params.put("id_variantes", "");
                 params.put("cantidad", op.getCantidad() + "");
                 params.put("comentarios", op.getComentarios());
+                params.put("uid", finalUid);
                 return params;
             }
         };
